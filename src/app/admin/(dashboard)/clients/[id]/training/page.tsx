@@ -16,15 +16,20 @@ export default async function TrainingEditorPage({
   });
   if (!client || client.role !== "USER") notFound();
 
-  const program = await prisma.trainingProgram.findUnique({
-    where: { userId: client.id },
-    include: {
-      days: {
-        orderBy: { order: "asc" },
-        include: { exercises: { orderBy: { order: "asc" } } },
+  const [program, library] = await Promise.all([
+    prisma.trainingProgram.findUnique({
+      where: { userId: client.id },
+      include: {
+        days: {
+          orderBy: { order: "asc" },
+          include: { exercises: { orderBy: { order: "asc" } } },
+        },
       },
-    },
-  });
+    }),
+    prisma.exerciseLibrary.findMany({
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    }),
+  ]);
 
   const initial = program
     ? {
@@ -34,6 +39,7 @@ export default async function TrainingEditorPage({
         days: program.days.map((d) => ({
           dayLabel: d.dayLabel,
           exercises: d.exercises.map((e) => ({
+            libraryId: e.libraryId,
             name: e.name,
             sets: e.sets,
             reps: e.reps,
@@ -45,18 +51,36 @@ export default async function TrainingEditorPage({
     : null;
 
   return (
-    <div className="max-w-4xl">
+    <div className="animate-fade-in">
       <Link
         href={`/admin/clients/${client.id}`}
-        className="text-sm text-brand-700 hover:underline"
+        className="text-sm font-medium text-brand-700 hover:text-brand-600"
       >
         ← Back to {client.name}
       </Link>
-      <h1 className="mt-2 text-2xl font-bold text-slate-900">Training program</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Build the weekly program for {client.name}.
-      </p>
-      <TrainingEditor clientId={client.id} initial={initial} />
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+            Training program
+          </p>
+          <h1 className="mt-1 h-page">{client.name}</h1>
+          <p className="mt-1 text-muted">Pick exercises from your library.</p>
+        </div>
+      </div>
+      <TrainingEditor
+        clientId={client.id}
+        initial={initial}
+        library={library.map((l) => ({
+          id: l.id,
+          name: l.name,
+          category: l.category,
+          muscleGroup: l.muscleGroup,
+          equipment: l.equipment,
+          defaultSets: l.defaultSets,
+          defaultReps: l.defaultReps,
+          defaultRest: l.defaultRest,
+        }))}
+      />
     </div>
   );
 }

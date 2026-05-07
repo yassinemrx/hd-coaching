@@ -1,9 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  PlusIcon,
+  TrashIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  SearchIcon,
+  CloseIcon,
+  DumbbellIcon,
+  CheckIcon,
+} from "@/components/Icon";
+
+type LibraryItem = {
+  id: string;
+  name: string;
+  category: string;
+  muscleGroup: string | null;
+  equipment: string | null;
+  defaultSets: number | null;
+  defaultReps: string | null;
+  defaultRest: string | null;
+};
 
 type Exercise = {
+  libraryId: string | null;
   name: string;
   sets: number;
   reps: string;
@@ -13,37 +35,27 @@ type Exercise = {
 
 type Day = { dayLabel: string; exercises: Exercise[] };
 
-type Initial = {
-  title: string;
-  notes: string;
-  startDate: string;
-  days: Day[];
-};
-
-const EMPTY_EXERCISE: Exercise = {
-  name: "",
-  sets: 3,
-  reps: "8-10",
-  rest: "90s",
-  notes: "",
-};
+type Initial = { title: string; notes: string; startDate: string; days: Day[] };
 
 const EMPTY: Initial = {
   title: "",
   notes: "",
   startDate: "",
-  days: [{ dayLabel: "Day 1", exercises: [{ ...EMPTY_EXERCISE }] }],
+  days: [{ dayLabel: "Day 1", exercises: [] }],
 };
 
 export default function TrainingEditor({
   clientId,
   initial,
+  library,
 }: {
   clientId: string;
   initial: Initial | null;
+  library: LibraryItem[];
 }) {
   const router = useRouter();
   const [state, setState] = useState<Initial>(initial ?? EMPTY);
+  const [pickerForDay, setPickerForDay] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -52,27 +64,22 @@ export default function TrainingEditor({
     setState((s) => ({ ...s, ...p }));
   }
 
-  function setDay(i: number, patch: Partial<Day>) {
+  function setDay(i: number, p: Partial<Day>) {
     setState((s) => ({
       ...s,
-      days: s.days.map((d, idx) => (idx === i ? { ...d, ...patch } : d)),
+      days: s.days.map((d, idx) => (idx === i ? { ...d, ...p } : d)),
     }));
   }
 
   function addDay() {
     setState((s) => ({
       ...s,
-      days: [
-        ...s.days,
-        { dayLabel: `Day ${s.days.length + 1}`, exercises: [{ ...EMPTY_EXERCISE }] },
-      ],
+      days: [...s.days, { dayLabel: `Day ${s.days.length + 1}`, exercises: [] }],
     }));
   }
-
   function removeDay(i: number) {
     setState((s) => ({ ...s, days: s.days.filter((_, idx) => idx !== i) }));
   }
-
   function moveDay(i: number, dir: -1 | 1) {
     setState((s) => {
       const arr = [...s.days];
@@ -83,7 +90,31 @@ export default function TrainingEditor({
     });
   }
 
-  function setExercise(di: number, ei: number, patch: Partial<Exercise>) {
+  function addExercise(dayIdx: number, lib: LibraryItem) {
+    setState((s) => ({
+      ...s,
+      days: s.days.map((d, i) =>
+        i === dayIdx
+          ? {
+              ...d,
+              exercises: [
+                ...d.exercises,
+                {
+                  libraryId: lib.id,
+                  name: lib.name,
+                  sets: lib.defaultSets ?? 3,
+                  reps: lib.defaultReps ?? "8-10",
+                  rest: lib.defaultRest ?? "90s",
+                  notes: "",
+                },
+              ],
+            }
+          : d
+      ),
+    }));
+  }
+
+  function setExercise(di: number, ei: number, p: Partial<Exercise>) {
     setState((s) => ({
       ...s,
       days: s.days.map((d, idx) =>
@@ -91,34 +122,19 @@ export default function TrainingEditor({
           ? d
           : {
               ...d,
-              exercises: d.exercises.map((e, j) =>
-                j === ei ? { ...e, ...patch } : e
-              ),
+              exercises: d.exercises.map((e, j) => (j === ei ? { ...e, ...p } : e)),
             }
       ),
     }));
   }
-
-  function addExercise(di: number) {
-    setState((s) => ({
-      ...s,
-      days: s.days.map((d, idx) =>
-        idx === di ? { ...d, exercises: [...d.exercises, { ...EMPTY_EXERCISE }] } : d
-      ),
-    }));
-  }
-
   function removeExercise(di: number, ei: number) {
     setState((s) => ({
       ...s,
       days: s.days.map((d, idx) =>
-        idx === di
-          ? { ...d, exercises: d.exercises.filter((_, j) => j !== ei) }
-          : d
+        idx === di ? { ...d, exercises: d.exercises.filter((_, j) => j !== ei) } : d
       ),
     }));
   }
-
   function moveExercise(di: number, ei: number, dir: -1 | 1) {
     setState((s) => ({
       ...s,
@@ -137,23 +153,14 @@ export default function TrainingEditor({
     e.preventDefault();
     setError(null);
     setOk(false);
-    if (!state.title.trim()) {
-      setError("Program title is required.");
-      return;
-    }
+    if (!state.title.trim()) return setError("Program title is required.");
     for (const d of state.days) {
-      if (!d.dayLabel.trim()) {
-        setError("Each day needs a label.");
-        return;
-      }
+      if (!d.dayLabel.trim()) return setError("Each day needs a label.");
       for (const ex of d.exercises) {
-        if (!ex.name.trim() || !ex.reps.trim() || ex.sets < 1) {
-          setError("Each exercise needs a name, sets ≥ 1, and a reps value.");
-          return;
-        }
+        if (!ex.name.trim() || !ex.reps.trim() || ex.sets < 1)
+          return setError("Each exercise needs a name, sets ≥ 1, and reps.");
       }
     }
-
     setSaving(true);
     const payload = {
       title: state.title,
@@ -164,6 +171,7 @@ export default function TrainingEditor({
       days: state.days.map((d) => ({
         dayLabel: d.dayLabel,
         exercises: d.exercises.map((e) => ({
+          libraryId: e.libraryId || null,
           name: e.name,
           sets: e.sets,
           reps: e.reps,
@@ -178,21 +186,17 @@ export default function TrainingEditor({
       body: JSON.stringify(payload),
     });
     setSaving(false);
-    if (!res.ok) {
-      setError("Save failed.");
-      return;
-    }
+    if (!res.ok) return setError("Save failed.");
     setOk(true);
     router.refresh();
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-6">
+    <form onSubmit={onSubmit} className="mt-6 space-y-6 pb-24">
       <div className="card space-y-4">
         <div>
-          <label className="label" htmlFor="title">Program title</label>
+          <label className="label">Program title</label>
           <input
-            id="title"
             required
             className="input mt-1"
             value={state.title}
@@ -202,9 +206,8 @@ export default function TrainingEditor({
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="label" htmlFor="startDate">Start date</label>
+            <label className="label">Start date</label>
             <input
-              id="startDate"
               type="date"
               className="input mt-1"
               value={state.startDate}
@@ -213,9 +216,8 @@ export default function TrainingEditor({
           </div>
         </div>
         <div>
-          <label className="label" htmlFor="notes">Coach notes</label>
+          <label className="label">Coach notes</label>
           <textarea
-            id="notes"
             rows={3}
             className="input mt-1"
             value={state.notes}
@@ -227,7 +229,7 @@ export default function TrainingEditor({
       <div className="space-y-4">
         {state.days.map((day, di) => (
           <div key={di} className="card">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <input
                 className="input max-w-md"
                 value={day.dayLabel}
@@ -235,103 +237,232 @@ export default function TrainingEditor({
                 placeholder="Monday — Push"
               />
               <div className="flex gap-2">
-                <button type="button" onClick={() => moveDay(di, -1)} className="btn btn-secondary">↑</button>
-                <button type="button" onClick={() => moveDay(di, 1)} className="btn btn-secondary">↓</button>
-                <button type="button" onClick={() => removeDay(di)} className="btn btn-danger">Remove day</button>
+                <button type="button" onClick={() => moveDay(di, -1)} className="btn btn-secondary px-3" aria-label="Move up">
+                  <ArrowUpIcon size={16} />
+                </button>
+                <button type="button" onClick={() => moveDay(di, 1)} className="btn btn-secondary px-3" aria-label="Move down">
+                  <ArrowDownIcon size={16} />
+                </button>
+                <button type="button" onClick={() => removeDay(di)} className="btn btn-danger">
+                  Remove day
+                </button>
               </div>
             </div>
 
             <div className="mt-4 space-y-2">
+              {day.exercises.length === 0 && (
+                <div className="empty-state py-6">
+                  <DumbbellIcon size={22} className="text-ink-300" />
+                  <p className="mt-2 text-sm text-ink-600">No exercises yet — pick from your library.</p>
+                </div>
+              )}
               {day.exercises.map((ex, ei) => (
-                <div
-                  key={ei}
-                  className="grid grid-cols-12 items-end gap-2 rounded-md border border-slate-200 p-2"
-                >
-                  <div className="col-span-12 sm:col-span-4">
-                    <label className="label">Exercise</label>
-                    <input
-                      className="input mt-1"
-                      value={ex.name}
-                      onChange={(e) => setExercise(di, ei, { name: e.target.value })}
-                      placeholder="Bench press"
-                    />
+                <div key={ei} className="rounded-lg border border-ink-200 bg-white p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-ink-900">{ex.name}</span>
+                        {ex.libraryId ? (
+                          <span className="chip chip-brand">From library</span>
+                        ) : (
+                          <span className="chip">Custom</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <button type="button" onClick={() => moveExercise(di, ei, -1)} className="btn-icon" aria-label="Move up">
+                        <ArrowUpIcon size={14} />
+                      </button>
+                      <button type="button" onClick={() => moveExercise(di, ei, 1)} className="btn-icon" aria-label="Move down">
+                        <ArrowDownIcon size={14} />
+                      </button>
+                      <button type="button" onClick={() => removeExercise(di, ei)} className="btn-icon hover:text-red-600" aria-label="Remove">
+                        <TrashIcon size={14} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="col-span-3 sm:col-span-1">
-                    <label className="label">Sets</label>
-                    <input
-                      type="number"
-                      min={1}
-                      className="input mt-1"
-                      value={ex.sets}
-                      onChange={(e) =>
-                        setExercise(di, ei, { sets: parseInt(e.target.value || "1", 10) })
-                      }
-                    />
-                  </div>
-                  <div className="col-span-4 sm:col-span-2">
-                    <label className="label">Reps</label>
-                    <input
-                      className="input mt-1"
-                      value={ex.reps}
-                      onChange={(e) => setExercise(di, ei, { reps: e.target.value })}
-                      placeholder="8-10"
-                    />
-                  </div>
-                  <div className="col-span-5 sm:col-span-2">
-                    <label className="label">Rest</label>
-                    <input
-                      className="input mt-1"
-                      value={ex.rest}
-                      onChange={(e) => setExercise(di, ei, { rest: e.target.value })}
-                      placeholder="90s"
-                    />
-                  </div>
-                  <div className="col-span-12 sm:col-span-2">
-                    <label className="label">Notes</label>
-                    <input
-                      className="input mt-1"
-                      value={ex.notes}
-                      onChange={(e) => setExercise(di, ei, { notes: e.target.value })}
-                    />
-                  </div>
-                  <div className="col-span-12 sm:col-span-1 flex items-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => moveExercise(di, ei, -1)}
-                      className="btn btn-secondary px-2"
-                    >↑</button>
-                    <button
-                      type="button"
-                      onClick={() => moveExercise(di, ei, 1)}
-                      className="btn btn-secondary px-2"
-                    >↓</button>
-                    <button
-                      type="button"
-                      onClick={() => removeExercise(di, ei)}
-                      className="btn btn-danger px-2"
-                    >×</button>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <div>
+                      <label className="label">Sets</label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={ex.sets}
+                        onChange={(e) => setExercise(di, ei, { sets: parseInt(e.target.value || "1", 10) })}
+                        className="input mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Reps</label>
+                      <input
+                        value={ex.reps}
+                        onChange={(e) => setExercise(di, ei, { reps: e.target.value })}
+                        className="input mt-1"
+                        placeholder="8-10"
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Rest</label>
+                      <input
+                        value={ex.rest}
+                        onChange={(e) => setExercise(di, ei, { rest: e.target.value })}
+                        className="input mt-1"
+                        placeholder="90s"
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Notes</label>
+                      <input
+                        value={ex.notes}
+                        onChange={(e) => setExercise(di, ei, { notes: e.target.value })}
+                        className="input mt-1"
+                        placeholder="optional"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
-              <button type="button" onClick={() => addExercise(di)} className="btn btn-secondary">
-                + Add exercise
+              <button
+                type="button"
+                onClick={() => setPickerForDay(di)}
+                className="btn btn-secondary w-full sm:w-auto"
+              >
+                <PlusIcon size={16} /> Add exercise from library
               </button>
             </div>
           </div>
         ))}
         <button type="button" onClick={addDay} className="btn btn-secondary">
-          + Add day
+          <PlusIcon size={16} /> Add day
         </button>
       </div>
 
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {ok && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Saved.</p>}
 
-      <div className="sticky bottom-4 flex justify-end">
-        <button type="submit" className="btn btn-primary" disabled={saving}>
+      <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4">
+        <button type="submit" className="btn btn-primary shadow-glow" disabled={saving}>
+          <CheckIcon size={16} />
           {saving ? "Saving…" : "Save program"}
         </button>
       </div>
+
+      {pickerForDay !== null && (
+        <ExercisePicker
+          library={library}
+          onClose={() => setPickerForDay(null)}
+          onPick={(lib) => {
+            addExercise(pickerForDay, lib);
+          }}
+        />
+      )}
     </form>
+  );
+}
+
+function ExercisePicker({
+  library,
+  onClose,
+  onPick,
+}: {
+  library: LibraryItem[];
+  onClose: () => void;
+  onPick: (l: LibraryItem) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("All");
+
+  const categories = useMemo(() => {
+    const set = new Set(library.map((l) => l.category));
+    return ["All", ...Array.from(set)];
+  }, [library]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return library.filter(
+      (l) =>
+        (filter === "All" || l.category === filter) &&
+        (q === "" ||
+          l.name.toLowerCase().includes(q) ||
+          (l.muscleGroup ?? "").toLowerCase().includes(q) ||
+          (l.equipment ?? "").toLowerCase().includes(q))
+    );
+  }, [library, search, filter]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/40 backdrop-blur-sm sm:items-center">
+      <div className="flex h-[85vh] w-full max-w-2xl flex-col animate-slide-in rounded-t-2xl bg-white shadow-soft sm:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-ink-100 p-4">
+          <div>
+            <h2 className="h-section">Exercise library</h2>
+            <p className="text-xs text-ink-500">Tap any exercise to add it.</p>
+          </div>
+          <button onClick={onClose} className="btn-icon" aria-label="Close">
+            <CloseIcon />
+          </button>
+        </div>
+        <div className="space-y-3 p-4">
+          <label className="relative block">
+            <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search exercises…"
+              className="input pl-9"
+            />
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setFilter(c)}
+                className={
+                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors " +
+                  (filter === c
+                    ? "bg-ink-900 text-white"
+                    : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
+                }
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {filtered.length === 0 ? (
+            <p className="py-8 text-center text-sm text-ink-400">No matches.</p>
+          ) : (
+            <ul className="space-y-2">
+              {filtered.map((l) => (
+                <li key={l.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onPick(l);
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg border border-ink-100 p-3 text-left transition-colors hover:border-brand-300 hover:bg-brand-50/30"
+                  >
+                    <div className="min-w-0">
+                      <div className="font-semibold text-ink-900">{l.name}</div>
+                      <div className="mt-0.5 flex flex-wrap gap-1">
+                        <span className="chip">{l.category}</span>
+                        {l.muscleGroup && <span className="chip chip-brand">{l.muscleGroup}</span>}
+                        {l.equipment && <span className="chip">{l.equipment}</span>}
+                      </div>
+                    </div>
+                    <span className="text-xs text-ink-400">
+                      {l.defaultSets ?? "—"} × {l.defaultReps || "—"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

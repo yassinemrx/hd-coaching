@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Role values: "ADMIN" | "USER" (SQLite has no enum support)
+// Role values: "ADMIN" | "USER"
 
 model User {
   id            String   @id @default(cuid())
@@ -65,6 +65,44 @@ model ProgressPhoto {
   @@index([userId, createdAt])
 }
 
+// ────────── Exercise Library (master list) ──────────
+model ExerciseLibrary {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   @default("Other") // Push, Pull, Legs, Core, Cardio, Full Body, Olympic, Other
+  muscleGroup String?  // chest, back, shoulders, biceps, triceps, quads, hams, glutes, calves, abs, full
+  equipment   String?  // Barbell, Dumbbell, Machine, Cable, Bodyweight, Kettlebell, Band
+  notes       String?  @db.Text
+  defaultSets Int?     @default(3)
+  defaultReps String?  @default("8-10")
+  defaultRest String?  @default("90s")
+  createdAt   DateTime @default(now())
+
+  programExercises Exercise[]
+
+  @@index([category])
+}
+
+// ────────── Food Library (master list) ──────────
+model Food {
+  id        String   @id @default(cuid())
+  name      String
+  category  String   @default("Other") // Protein, Carbs, Fats, Vegetables, Fruits, Dairy, Drinks, Other
+  unit      String   @default("g")     // g, ml, piece, cup, scoop, slice, tbsp
+  perAmount Float    @default(100)     // values below are per X units (e.g. per 100g)
+  calories  Float    @default(0)
+  protein   Float    @default(0)
+  carbs     Float    @default(0)
+  fat       Float    @default(0)
+  notes     String?
+  createdAt DateTime @default(now())
+
+  mealItems MealItem[]
+
+  @@index([category])
+}
+
+// ────────── Diet plan (per client) ──────────
 model DietPlan {
   id        String   @id @default(cuid())
   userId    String   @unique
@@ -94,14 +132,31 @@ model Meal {
   dietPlanId String
   name       String
   time       String
-  foods      String   @db.Text
+  notes      String?  @db.Text
   order      Int      @default(0)
 
   dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+  items      MealItem[]
 
   @@index([dietPlanId, order])
 }
 
+model MealItem {
+  id         String  @id @default(cuid())
+  mealId     String
+  foodId     String?
+  customName String? // when not from library
+  quantity   Float   @default(0)
+  unit       String  @default("g")
+  order      Int     @default(0)
+
+  meal       Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  food       Food?   @relation(fields: [foodId], references: [id], onDelete: SetNull)
+
+  @@index([mealId, order])
+}
+
+// ────────── Training program (per client) ──────────
 model TrainingProgram {
   id        String   @id @default(cuid())
   userId    String   @unique
@@ -130,6 +185,7 @@ model TrainingDay {
 model Exercise {
   id        String   @id @default(cuid())
   dayId     String
+  libraryId String?  // optional link to ExerciseLibrary entry
   name      String
   sets      Int
   reps      String
@@ -137,7 +193,8 @@ model Exercise {
   notes     String?  @db.Text
   order     Int      @default(0)
 
-  day       TrainingDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  day       TrainingDay      @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  library   ExerciseLibrary? @relation(fields: [libraryId], references: [id], onDelete: SetNull)
 
   @@index([dayId, order])
 }

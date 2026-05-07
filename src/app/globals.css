@@ -5,30 +5,122 @@
 @layer base {
   html,
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-ink-50 text-ink-900 antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  *,
+  *::before,
+  *::after {
+    @apply border-ink-200;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+
+  /* nicer scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-200 hover:bg-ink-300;
   }
 }
 
 @layer components {
+  /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-primary {
-    @apply bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+    @apply bg-brand-gradient text-white shadow-soft hover:shadow-glow hover:brightness-110 focus-visible:ring-brand-500;
   }
   .btn-secondary {
-    @apply bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:ring-brand-500;
+    @apply bg-white text-ink-700 ring-1 ring-inset ring-ink-200 hover:bg-ink-50 hover:ring-ink-300 focus-visible:ring-brand-500;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-ink-600 hover:bg-ink-100 hover:text-ink-900 focus-visible:ring-brand-500;
   }
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+    @apply bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500;
   }
+  .btn-icon {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100 hover:text-ink-900;
+  }
+
+  /* Form fields */
   .input {
-    @apply block w-full rounded-md border-0 px-3 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm;
+    @apply block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-ink-900 shadow-sm ring-1 ring-inset ring-ink-200 placeholder:text-ink-400 transition-colors focus:ring-2 focus:ring-inset focus:ring-brand-500 disabled:opacity-60;
   }
   .label {
-    @apply block text-sm font-medium leading-6 text-slate-700;
+    @apply block text-xs font-medium uppercase tracking-wide text-ink-500;
   }
+
+  /* Surfaces */
   .card {
-    @apply rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200;
+    @apply rounded-2xl bg-white p-6 shadow-soft ring-1 ring-ink-100;
+  }
+  .card-tight {
+    @apply rounded-xl bg-white p-4 shadow-soft ring-1 ring-ink-100;
+  }
+
+  /* Badges / chips */
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-ink-700;
+  }
+  .chip-brand {
+    @apply bg-brand-50 text-brand-700;
+  }
+  .chip-amber {
+    @apply bg-amber-50 text-amber-700;
+  }
+  .chip-blue {
+    @apply bg-blue-50 text-blue-700;
+  }
+  .chip-purple {
+    @apply bg-purple-50 text-purple-700;
+  }
+  .chip-pink {
+    @apply bg-pink-50 text-pink-700;
+  }
+
+  /* Section heading */
+  .h-page {
+    @apply text-2xl font-bold tracking-tight text-ink-900;
+  }
+  .h-section {
+    @apply text-lg font-semibold text-ink-900;
+  }
+  .text-muted {
+    @apply text-sm text-ink-500;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors;
+  }
+  .nav-item-inactive {
+    @apply text-ink-400 hover:bg-white/5 hover:text-white;
+  }
+  .nav-item-active {
+    @apply bg-white/10 text-white;
+  }
+
+  /* Empty state */
+  .empty-state {
+    @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-200 bg-white/50 p-10 text-center;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

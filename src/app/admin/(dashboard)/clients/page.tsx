@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/week";
 import ClientRowActions from "./ClientRowActions";
+import { PlusIcon, UsersIcon, ChevronRightIcon } from "@/components/Icon";
 
 export const metadata = { title: "Clients — Admin" };
 export const dynamic = "force-dynamic";
@@ -25,63 +26,69 @@ export default async function ClientsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div className="space-y-6 animate-fade-in">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Clients</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage client accounts and view their progress.
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Workspace</p>
+          <h1 className="mt-1 h-page">Clients</h1>
+          <p className="mt-1 text-muted">Manage client accounts and view their progress.</p>
         </div>
         <Link href="/admin/clients/new" className="btn btn-primary">
-          + Add client
+          <PlusIcon size={16} /> Add client
         </Link>
       </header>
 
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Last login</th>
-              <th className="px-4 py-3">Last weight log</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
-            {clients.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">
-                  No clients yet.
-                </td>
-              </tr>
-            )}
-            {clients.map((c) => (
-              <tr key={c.id}>
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/clients/${c.id}`}
-                    className="font-medium text-slate-900 hover:text-brand-700"
-                  >
-                    {c.name}
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-slate-600">{c.email}</td>
-                <td className="px-4 py-3 text-slate-500">
-                  {c.lastLoginAt ? formatDate(c.lastLoginAt) : "—"}
-                </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {c.weightLogs[0] ? formatDate(c.weightLogs[0].date) : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <ClientRowActions id={c.id} name={c.name} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {clients.length === 0 ? (
+        <div className="empty-state">
+          <UsersIcon size={28} className="text-ink-300" />
+          <p className="mt-3 font-medium text-ink-700">No clients yet</p>
+          <p className="mt-1 text-muted">Add your first client to get started.</p>
+          <Link href="/admin/clients/new" className="btn btn-primary mt-4">
+            <PlusIcon size={16} /> Add client
+          </Link>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {clients.map((c) => (
+            <article
+              key={c.id}
+              className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-soft ring-1 ring-ink-100 transition-all hover:-translate-y-0.5 hover:ring-brand-200"
+            >
+              <Link
+                href={`/admin/clients/${c.id}`}
+                className="absolute inset-0 z-0"
+                aria-label={`Open ${c.name}`}
+              />
+              <div className="relative z-10 flex items-start gap-3">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-gradient text-base font-bold text-white shadow-soft">
+                  {c.name.slice(0, 1).toUpperCase()}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate font-semibold text-ink-900">{c.name}</h3>
+                  <p className="truncate text-xs text-ink-500">{c.email}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <Mini label="Last login" value={c.lastLoginAt ? formatDate(c.lastLoginAt) : "—"} />
+                    <Mini label="Last log" value={c.weightLogs[0] ? formatDate(c.weightLogs[0].date) : "—"} />
+                  </div>
+                </div>
+                <ChevronRightIcon size={16} className="mt-2 text-ink-300 transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <div className="relative z-10 mt-3 -mb-2 flex justify-end">
+                <ClientRowActions id={c.id} name={c.name} />
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-ink-50 px-2 py-1.5">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-ink-500">{label}</div>
+      <div className="truncate font-semibold text-ink-800">{value}</div>
     </div>
   );
 }

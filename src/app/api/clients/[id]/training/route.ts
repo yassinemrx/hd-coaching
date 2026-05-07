@@ -5,7 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const exerciseSchema = z.object({
-  name: z.string().min(1).max(100),
+  libraryId: z.string().nullable().optional(),
+  name: z.string().min(1).max(120),
   sets: z.coerce.number().int().min(1).max(50),
   reps: z.string().min(1).max(50),
   rest: z.string().max(50).optional().nullable(),
@@ -26,26 +27,39 @@ const schema = z.object({
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if (session?.user.role !== "ADMIN") {
+  if (session?.user.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
 
   const target = await prisma.user.findUnique({ where: { id: params.id } });
-  if (!target || target.role !== "USER") {
+  if (!target || target.role !== "USER")
     return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
 
   const json = await req.json().catch(() => null);
   const parsed = schema.safeParse(json);
-  if (!parsed.success) {
+  if (!parsed.success)
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
 
   const { title, notes, startDate, days } = parsed.data;
   const start = startDate ? new Date(startDate) : null;
 
   const program = await prisma.$transaction(async (tx) => {
     const existing = await tx.trainingProgram.findUnique({ where: { userId: params.id } });
+    const dayCreate = days.map((d, i) => ({
+      dayLabel: d.dayLabel,
+      order: i,
+      exercises: {
+        create: d.exercises.map((e, j) => ({
+          libraryId: e.libraryId || null,
+          name: e.name,
+          sets: e.sets,
+          reps: e.reps,
+          rest: e.rest ?? null,
+          notes: e.notes ?? null,
+          order: j,
+        })),
+      },
+    }));
+
     if (existing) {
       await tx.trainingDay.deleteMany({ where: { programId: existing.id } });
       return tx.trainingProgram.update({
@@ -54,22 +68,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
           title,
           notes: notes ?? null,
           startDate: start,
-          days: {
-            create: days.map((d, i) => ({
-              dayLabel: d.dayLabel,
-              order: i,
-              exercises: {
-                create: d.exercises.map((e, j) => ({
-                  name: e.name,
-                  sets: e.sets,
-                  reps: e.reps,
-                  rest: e.rest ?? null,
-                  notes: e.notes ?? null,
-                  order: j,
-                })),
-              },
-            })),
-          },
+          days: { create: dayCreate },
         },
       });
     }
@@ -79,22 +78,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         title,
         notes: notes ?? null,
         startDate: start,
-        days: {
-          create: days.map((d, i) => ({
-            dayLabel: d.dayLabel,
-            order: i,
-            exercises: {
-              create: d.exercises.map((e, j) => ({
-                name: e.name,
-                sets: e.sets,
-                reps: e.reps,
-                rest: e.rest ?? null,
-                notes: e.notes ?? null,
-                order: j,
-              })),
-            },
-          })),
-        },
+        days: { create: dayCreate },
       },
     });
   });

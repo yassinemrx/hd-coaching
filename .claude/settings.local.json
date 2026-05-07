@@ -14,7 +14,8 @@
       "Bash(curl -s -o /dev/null -w \"AdminLogin \\(expect 200\\): %{http_code}\\\\n\" http://localhost:3000/admin/login)",
       "Bash(cat)",
       "Bash(bash /tmp/auth_test.sh)",
-      "Bash(powershell -Command \"Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force\")"
+      "Bash(powershell -Command \"Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(git add *)"
     ]
   }
 }

@@ -12,46 +12,73 @@ export default async function DietEditorPage({ params }: { params: { id: string 
   });
   if (!client || client.role !== "USER") notFound();
 
-  const plan = await prisma.dietPlan.findUnique({
-    where: { userId: client.id },
-    include: { macros: true, meals: { orderBy: { order: "asc" } } },
-  });
+  const [plan, foods] = await Promise.all([
+    prisma.dietPlan.findUnique({
+      where: { userId: client.id },
+      include: {
+        macros: true,
+        meals: {
+          orderBy: { order: "asc" },
+          include: { items: { orderBy: { order: "asc" } } },
+        },
+      },
+    }),
+    prisma.food.findMany({ orderBy: [{ category: "asc" }, { name: "asc" }] }),
+  ]);
+
+  const initial = plan
+    ? {
+        title: plan.title,
+        notes: plan.notes ?? "",
+        macros: plan.macros
+          ? {
+              calories: plan.macros.calories,
+              protein: plan.macros.protein,
+              carbs: plan.macros.carbs,
+              fat: plan.macros.fat,
+            }
+          : { calories: 2000, protein: 150, carbs: 200, fat: 60 },
+        meals: plan.meals.map((m) => ({
+          name: m.name,
+          time: m.time,
+          notes: m.notes ?? "",
+          items: m.items.map((it) => ({
+            foodId: it.foodId,
+            customName: it.customName,
+            quantity: it.quantity,
+            unit: it.unit,
+          })),
+        })),
+      }
+    : null;
 
   return (
-    <div className="max-w-3xl">
+    <div className="animate-fade-in">
       <Link
         href={`/admin/clients/${client.id}`}
-        className="text-sm text-brand-700 hover:underline"
+        className="text-sm font-medium text-brand-700 hover:text-brand-600"
       >
         ← Back to {client.name}
       </Link>
-      <h1 className="mt-2 text-2xl font-bold text-slate-900">Diet plan</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Set targets and meals for {client.name}.
-      </p>
+      <div className="mt-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Diet plan</p>
+        <h1 className="mt-1 h-page">{client.name}</h1>
+        <p className="mt-1 text-muted">Build meals by picking foods + quantities.</p>
+      </div>
       <DietEditor
         clientId={client.id}
-        initial={
-          plan
-            ? {
-                title: plan.title,
-                notes: plan.notes ?? "",
-                macros: plan.macros
-                  ? {
-                      calories: plan.macros.calories,
-                      protein: plan.macros.protein,
-                      carbs: plan.macros.carbs,
-                      fat: plan.macros.fat,
-                    }
-                  : { calories: 2000, protein: 150, carbs: 200, fat: 60 },
-                meals: plan.meals.map((m) => ({
-                  name: m.name,
-                  time: m.time,
-                  foods: m.foods,
-                })),
-              }
-            : null
-        }
+        initial={initial}
+        foods={foods.map((f) => ({
+          id: f.id,
+          name: f.name,
+          category: f.category,
+          unit: f.unit,
+          perAmount: f.perAmount,
+          calories: f.calories,
+          protein: f.protein,
+          carbs: f.carbs,
+          fat: f.fat,
+        }))}
       />
     </div>
   );

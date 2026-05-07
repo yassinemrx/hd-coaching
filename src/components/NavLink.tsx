@@ -18,10 +18,10 @@ export default function NavLink({
     <Link
       href={href}
       className={
-        "rounded-md px-3 py-2 text-sm font-medium transition-colors " +
+        "rounded-lg px-3 py-2 text-sm font-medium transition-colors " +
         (active
           ? "bg-brand-50 text-brand-700"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900")
+          : "text-ink-600 hover:bg-ink-100 hover:text-ink-900")
       }
     >
       {children}

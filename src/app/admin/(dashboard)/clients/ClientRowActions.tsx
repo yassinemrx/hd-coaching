@@ -8,7 +8,9 @@ export default function ClientRowActions({ id, name }: { id: string; name: strin
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
-  async function onDelete() {
+  async function onDelete(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     if (!confirm(`Delete ${name}? This removes all their data.`)) return;
     setBusy(true);
     const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
@@ -18,17 +20,19 @@ export default function ClientRowActions({ id, name }: { id: string; name: strin
   }
 
   return (
-    <div className="flex items-center justify-end gap-3 text-sm">
-      <Link href={`/admin/clients/${id}`} className="text-brand-700 hover:underline">
-        View
-      </Link>
-      <Link href={`/admin/clients/${id}/edit`} className="text-slate-600 hover:underline">
+    <div className="flex items-center gap-2 text-xs">
+      <Link
+        href={`/admin/clients/${id}/edit`}
+        onClick={(e) => e.stopPropagation()}
+        className="rounded-md px-2 py-1 text-ink-600 hover:bg-ink-100"
+      >
         Edit
       </Link>
       <button
+        type="button"
         onClick={onDelete}
         disabled={busy}
-        className="text-red-600 hover:underline disabled:opacity-50"
+        className="rounded-md px-2 py-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
       >
         Delete
       </button>
