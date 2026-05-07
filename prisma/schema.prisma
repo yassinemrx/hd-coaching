@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -69,7 +69,7 @@ model DietPlan {
   id        String   @id @default(cuid())
   userId    String   @unique
   title     String
-  notes     String?
+  notes     String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -94,7 +94,7 @@ model Meal {
   dietPlanId String
   name       String
   time       String
-  foods      String
+  foods      String   @db.Text
   order      Int      @default(0)
 
   dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
@@ -106,7 +106,7 @@ model TrainingProgram {
   id        String   @id @default(cuid())
   userId    String   @unique
   title     String
-  notes     String?
+  notes     String?  @db.Text
   startDate DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,7 +134,7 @@ model Exercise {
   sets      Int
   reps      String
   rest      String?
-  notes     String?
+  notes     String?  @db.Text
   order     Int      @default(0)
 
   day       TrainingDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
