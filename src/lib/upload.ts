@@ -26,7 +26,7 @@ export async function saveUpload(file: File): Promise<string> {
   const filename = `${Date.now()}-${id}${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(path.join(UPLOAD_DIR, filename), buffer);
-  return `/uploads/${filename}`;
+  return `/api/uploads/${filename}`;
 }
 
 function mimeToExt(mime: string) {
