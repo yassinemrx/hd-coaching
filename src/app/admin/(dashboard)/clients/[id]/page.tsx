@@ -3,11 +3,15 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/week";
 import WeightChart from "@/components/WeightChart";
+import { getDict } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
-  const client = await prisma.user.findUnique({ where: { id: params.id } });
+  const [client, t] = await Promise.all([
+    prisma.user.findUnique({ where: { id: params.id } }),
+    getDict(),
+  ]);
   if (!client || client.role !== "USER") notFound();
 
   const since = new Date();
@@ -36,16 +40,16 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     <div className="space-y-8">
       <div>
         <Link href="/admin/clients" className="text-sm text-brand-700 hover:underline">
-          ← Back to clients
+          {t.admin.backToClients}
         </Link>
         <div className="mt-2 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{client.name}</h1>
             <p className="text-sm text-slate-500">{client.email}</p>
             <p className="mt-1 text-xs text-slate-400">
-              Joined {formatDate(client.createdAt)}
+              {t.admin.joined} {formatDate(client.createdAt)}
               {client.lastLoginAt
-                ? ` · Last login ${formatDate(client.lastLoginAt)}`
+                ? ` · ${t.admin.lastLoginText} ${formatDate(client.lastLoginAt)}`
                 : ""}
             </p>
           </div>
@@ -54,26 +58,26 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               href={`/admin/clients/${client.id}/edit`}
               className="btn btn-secondary"
             >
-              Edit account
+              {t.admin.editAccount}
             </Link>
             <Link
               href={`/admin/clients/${client.id}/diet`}
               className="btn btn-secondary"
             >
-              {dietPlan ? "Edit diet" : "+ Diet plan"}
+              {dietPlan ? t.admin.editDietPlan : t.admin.addDietPlan}
             </Link>
             <Link
               href={`/admin/clients/${client.id}/training`}
               className="btn btn-primary"
             >
-              {program ? "Edit training" : "+ Training program"}
+              {program ? t.admin.editTrainingProgram : t.admin.addTrainingProgram}
             </Link>
           </div>
         </div>
       </div>
 
       <section className="card">
-        <h2 className="text-lg font-semibold">Weight (last 90 days)</h2>
+        <h2 className="text-lg font-semibold">{t.admin.weight90}</h2>
         <div className="mt-4">
           <WeightChart
             data={weightLogs.map((l) => ({
@@ -85,20 +89,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </section>
 
       <section className="card">
-        <h2 className="text-lg font-semibold">Recent body measurements</h2>
+        <h2 className="text-lg font-semibold">{t.admin.recentMeasurements}</h2>
         {measurements.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-400">No measurements yet.</p>
+          <p className="mt-4 text-sm text-slate-400">{t.admin.noMeasurementsYet}</p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-md ring-1 ring-slate-200">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-4 py-2">Date</th>
-                  <th className="px-4 py-2">Chest</th>
-                  <th className="px-4 py-2">Waist</th>
-                  <th className="px-4 py-2">Hips</th>
-                  <th className="px-4 py-2">Thighs</th>
-                  <th className="px-4 py-2">Arms</th>
+                  <th className="px-4 py-2">{t.common.date}</th>
+                  <th className="px-4 py-2">{t.progress.chest}</th>
+                  <th className="px-4 py-2">{t.progress.waist}</th>
+                  <th className="px-4 py-2">{t.progress.hips}</th>
+                  <th className="px-4 py-2">{t.progress.thighs}</th>
+                  <th className="px-4 py-2">{t.progress.arms}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -119,9 +123,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </section>
 
       <section className="card">
-        <h2 className="text-lg font-semibold">Recent photos</h2>
+        <h2 className="text-lg font-semibold">{t.admin.recentPhotos}</h2>
         {photos.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-400">No photos uploaded.</p>
+          <p className="mt-4 text-sm text-slate-400">{t.admin.noPhotosUploaded}</p>
         ) : (
           <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
             {photos.map((p) => (

@@ -12,7 +12,7 @@ import {
   SaladIcon,
   CheckIcon,
 } from "@/components/Icon";
-import { useLocale } from "@/components/I18nProvider";
+import { useDict, useLocale } from "@/components/I18nProvider";
 import { trFoodName, trCategory, trUnit } from "@/lib/i18n/dynamic";
 
 type Food = {
@@ -77,6 +77,7 @@ export default function DietEditor({
 }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useDict();
   const [state, setState] = useState<Initial>(initial ?? EMPTY);
   const [pickerForMeal, setPickerForMeal] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -173,9 +174,9 @@ export default function DietEditor({
     e.preventDefault();
     setError(null);
     setOk(false);
-    if (!state.title.trim()) return setError("Plan title is required.");
+    if (!state.title.trim()) return setError(t.admin.planTitleReq);
     if (state.meals.some((m) => !m.name.trim() || !m.time.trim()))
-      return setError("Each meal needs a name and time.");
+      return setError(t.admin.mealFieldsReq);
 
     setSaving(true);
     const res = await fetch(`/api/clients/${clientId}/diet`, {
@@ -194,7 +195,7 @@ export default function DietEditor({
       }),
     });
     setSaving(false);
-    if (!res.ok) return setError("Save failed.");
+    if (!res.ok) return setError(t.admin.saveFailed);
     setOk(true);
     router.refresh();
   }
@@ -203,17 +204,17 @@ export default function DietEditor({
     <form onSubmit={onSubmit} className="mt-6 space-y-6 pb-24">
       <div className="card space-y-4">
         <div>
-          <label className="label">Plan title</label>
+          <label className="label">{t.admin.planTitle}</label>
           <input
             required
             className="input mt-1"
             value={state.title}
             onChange={(e) => patch({ title: e.target.value })}
-            placeholder="e.g. Cut Phase — Week 4"
+            placeholder={t.admin.planTitlePh}
           />
         </div>
         <div>
-          <label className="label">Coach notes</label>
+          <label className="label">{t.admin.coachNotes}</label>
           <textarea
             rows={3}
             className="input mt-1"
@@ -225,13 +226,13 @@ export default function DietEditor({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="card">
-          <h2 className="h-section">Daily targets</h2>
-          <p className="text-xs text-ink-500">What the client should aim for.</p>
+          <h2 className="h-section">{t.diet.dailyTargets}</h2>
+          <p className="text-xs text-ink-500">{t.admin.dailyTargetsHint}</p>
           <div className="mt-3 grid grid-cols-2 gap-3">
             {(["calories", "protein", "carbs", "fat"] as const).map((k) => (
               <div key={k}>
-                <label className="label capitalize">
-                  {k} {k === "calories" ? "(kcal)" : "(g)"}
+                <label className="label">
+                  {t.nutrition[k]} {k === "calories" ? `(${t.nutrition.kcal})` : "(g)"}
                 </label>
                 <input
                   type="number"
@@ -245,13 +246,13 @@ export default function DietEditor({
           </div>
         </div>
         <div className="card">
-          <h2 className="h-section">Plan total (calculated)</h2>
-          <p className="text-xs text-ink-500">Auto from foods you added.</p>
+          <h2 className="h-section">{t.admin.planTotalLabel}</h2>
+          <p className="text-xs text-ink-500">{t.admin.planTotalHint}</p>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <TotalMacro label="Calories" value={Math.round(totals.cal)} target={state.macros.calories} unit="kcal" />
-            <TotalMacro label="Protein" value={Math.round(totals.p)} target={state.macros.protein} unit="g" />
-            <TotalMacro label="Carbs" value={Math.round(totals.c)} target={state.macros.carbs} unit="g" />
-            <TotalMacro label="Fat" value={Math.round(totals.f)} target={state.macros.fat} unit="g" />
+            <TotalMacro label={t.nutrition.calories} value={Math.round(totals.cal)} target={state.macros.calories} unit={t.nutrition.kcal} targetText={t.admin.target} />
+            <TotalMacro label={t.nutrition.protein} value={Math.round(totals.p)} target={state.macros.protein} unit="g" targetText={t.admin.target} />
+            <TotalMacro label={t.nutrition.carbs} value={Math.round(totals.c)} target={state.macros.carbs} unit="g" targetText={t.admin.target} />
+            <TotalMacro label={t.nutrition.fat} value={Math.round(totals.f)} target={state.macros.fat} unit="g" targetText={t.admin.target} />
           </div>
         </div>
       </div>
@@ -262,33 +263,33 @@ export default function DietEditor({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="label">Meal name</label>
+                  <label className="label">{t.admin.mealNameField}</label>
                   <input
                     className="input mt-1"
                     value={meal.name}
                     onChange={(e) => setMeal(mi, { name: e.target.value })}
-                    placeholder="Breakfast"
+                    placeholder={t.admin.mealNamePh}
                   />
                 </div>
                 <div>
-                  <label className="label">Time</label>
+                  <label className="label">{t.admin.mealTimeField}</label>
                   <input
                     className="input mt-1"
                     value={meal.time}
                     onChange={(e) => setMeal(mi, { time: e.target.value })}
-                    placeholder="08:00"
+                    placeholder={t.admin.mealTimePh}
                   />
                 </div>
               </div>
               <div className="flex gap-2">
-                <button type="button" onClick={() => moveMeal(mi, -1)} className="btn btn-secondary px-3" aria-label="Move up">
+                <button type="button" onClick={() => moveMeal(mi, -1)} className="btn btn-secondary px-3" aria-label={t.admin.moveUp}>
                   <ArrowUpIcon size={16} />
                 </button>
-                <button type="button" onClick={() => moveMeal(mi, 1)} className="btn btn-secondary px-3" aria-label="Move down">
+                <button type="button" onClick={() => moveMeal(mi, 1)} className="btn btn-secondary px-3" aria-label={t.admin.moveDown}>
                   <ArrowDownIcon size={16} />
                 </button>
                 <button type="button" onClick={() => removeMeal(mi)} className="btn btn-danger">
-                  Remove
+                  {t.admin.removeMeal}
                 </button>
               </div>
             </div>
@@ -297,7 +298,7 @@ export default function DietEditor({
               {meal.items.length === 0 && (
                 <div className="empty-state py-6">
                   <SaladIcon size={22} className="text-ink-300" />
-                  <p className="mt-2 text-sm text-ink-600">No foods yet.</p>
+                  <p className="mt-2 text-sm text-ink-600">{t.admin.noFoodsYet}</p>
                 </div>
               )}
               {meal.items.map((item, ii) => {
@@ -308,7 +309,7 @@ export default function DietEditor({
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold text-ink-900">
-                          {food ? trFoodName(food.name, locale) : item.customName || "Custom item"}
+                          {food ? trFoodName(food.name, locale) : item.customName || t.admin.customItemLabel}
                         </div>
                         <div className="text-xs text-ink-500">
                           {Math.round(m.cal)} kcal · P {m.p.toFixed(1)} · C {m.c.toFixed(1)} · F {m.f.toFixed(1)}
@@ -330,7 +331,7 @@ export default function DietEditor({
                           type="button"
                           onClick={() => removeItem(mi, ii)}
                           className="btn-icon hover:text-red-600"
-                          aria-label="Remove"
+                          aria-label={t.admin.remove}
                         >
                           <TrashIcon size={14} />
                         </button>
@@ -344,33 +345,33 @@ export default function DietEditor({
                 onClick={() => setPickerForMeal(mi)}
                 className="btn btn-secondary w-full sm:w-auto"
               >
-                <PlusIcon size={16} /> Add food from library
+                <PlusIcon size={16} /> {t.admin.addFoodFromLib}
               </button>
             </div>
 
             <div className="mt-3">
-              <label className="label">Meal notes</label>
+              <label className="label">{t.admin.mealNotesField}</label>
               <input
                 className="input mt-1"
                 value={meal.notes}
                 onChange={(e) => setMeal(mi, { notes: e.target.value })}
-                placeholder="optional notes for this meal"
+                placeholder={t.admin.mealNotesPh}
               />
             </div>
           </div>
         ))}
         <button type="button" onClick={addMeal} className="btn btn-secondary">
-          <PlusIcon size={16} /> Add meal
+          <PlusIcon size={16} /> {t.admin.addMeal}
         </button>
       </div>
 
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-      {ok && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Saved.</p>}
+      {ok && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{t.admin.saved}</p>}
 
       <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4">
         <button type="submit" className="btn btn-primary shadow-glow" disabled={saving}>
           <CheckIcon size={16} />
-          {saving ? "Saving…" : "Save plan"}
+          {saving ? t.admin.savingDots : t.admin.savePlan}
         </button>
       </div>
 
@@ -392,11 +393,13 @@ function TotalMacro({
   value,
   target,
   unit,
+  targetText,
 }: {
   label: string;
   value: number;
   target: number;
   unit: string;
+  targetText: string;
 }) {
   const pct = target > 0 ? Math.min(100, Math.round((value / target) * 100)) : 0;
   const over = target > 0 && value > target;
@@ -404,7 +407,7 @@ function TotalMacro({
     <div className="rounded-lg bg-ink-50 p-3">
       <div className="flex items-baseline justify-between">
         <span className="text-xs font-medium uppercase tracking-wide text-ink-500">{label}</span>
-        <span className="text-xs text-ink-400">target {target}</span>
+        <span className="text-xs text-ink-400">{targetText} {target}</span>
       </div>
       <div className="mt-1 font-display text-xl font-bold text-ink-900">
         {value}
@@ -430,6 +433,7 @@ function FoodPicker({
   onAdd: (food: Food, qty: number) => void;
 }) {
   const locale = useLocale();
+  const t = useDict();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<Food | null>(null);
@@ -466,10 +470,10 @@ function FoodPicker({
       <div className="flex h-[85vh] w-full max-w-2xl flex-col animate-slide-in rounded-t-2xl bg-white shadow-soft sm:rounded-2xl">
         <div className="flex items-center justify-between border-b border-ink-100 p-4">
           <div>
-            <h2 className="h-section">Pick a food</h2>
-            <p className="text-xs text-ink-500">Tap, set quantity, add.</p>
+            <h2 className="h-section">{t.admin.pickFoodTitle}</h2>
+            <p className="text-xs text-ink-500">{t.admin.pickFoodHint}</p>
           </div>
-          <button onClick={onClose} className="btn-icon" aria-label="Close">
+          <button onClick={onClose} className="btn-icon" aria-label={t.common.close}>
             <CloseIcon />
           </button>
         </div>
@@ -480,7 +484,7 @@ function FoodPicker({
               onClick={() => setSelected(null)}
               className="text-sm text-brand-700 hover:text-brand-600"
             >
-              ← Back to list
+              {t.admin.backToList}
             </button>
             <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/40 p-4">
               <h3 className="font-display text-lg font-bold text-ink-900">{trFoodName(selected.name, locale)}</h3>
@@ -491,7 +495,7 @@ function FoodPicker({
               </p>
             </div>
             <div className="mt-4">
-              <label className="label">Quantity ({trUnit(selected.unit, locale)})</label>
+              <label className="label">{t.admin.quantityLabel} ({trUnit(selected.unit, locale)})</label>
               <input
                 autoFocus
                 type="number"
@@ -516,7 +520,7 @@ function FoodPicker({
               })()}
             </div>
             <button type="button" onClick={confirm} className="btn btn-primary mt-4 w-full">
-              <PlusIcon size={16} /> Add to meal
+              <PlusIcon size={16} /> {t.admin.addToMeal}
             </button>
           </div>
         ) : (
@@ -528,7 +532,7 @@ function FoodPicker({
                   autoFocus
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search foods…"
+                  placeholder={t.admin.searchFoodsShort}
                   className="input pl-9"
                 />
               </label>
@@ -545,14 +549,14 @@ function FoodPicker({
                         : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
                     }
                   >
-                    {c === "All" ? c : trCategory(c, locale)}
+                    {c === "All" ? t.admin.all : trCategory(c, locale)}
                   </button>
                 ))}
               </div>
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-4">
               {filtered.length === 0 ? (
-                <p className="py-8 text-center text-sm text-ink-400">No matches.</p>
+                <p className="py-8 text-center text-sm text-ink-400">{t.admin.noMatches}</p>
               ) : (
                 <ul className="space-y-2">
                   {filtered.map((f) => (

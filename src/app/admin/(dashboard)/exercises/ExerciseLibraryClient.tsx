@@ -10,7 +10,7 @@ import {
   DumbbellIcon,
   CloseIcon,
 } from "@/components/Icon";
-import { useLocale } from "@/components/I18nProvider";
+import { useDict, useLocale } from "@/components/I18nProvider";
 import { trExerciseName, trCategory, trMuscleGroup, trEquipment } from "@/lib/i18n/dynamic";
 
 type Exercise = {
@@ -31,6 +31,7 @@ const EQUIPMENT = ["Barbell", "Dumbbell", "Machine", "Cable", "Bodyweight", "Ket
 export default function ExerciseLibraryClient({ initial }: { initial: Exercise[] }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useDict();
   const [items, setItems] = useState(initial);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("All");
@@ -66,12 +67,12 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
     setShowForm(true);
   }
   async function onDelete(id: string) {
-    if (!confirm("Delete this exercise?")) return;
+    if (!confirm(t.admin.deleteExerciseConfirm)) return;
     const res = await fetch(`/api/exercises/${id}`, { method: "DELETE" });
     if (res.ok) {
       setItems((arr) => arr.filter((x) => x.id !== id));
     } else {
-      alert("Could not delete (it may be in use).");
+      alert(t.admin.couldNotDeleteExercise);
     }
   }
 
@@ -79,14 +80,14 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
     <>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Library</p>
-          <h1 className="mt-1 h-page">Exercises</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">{t.admin.libraryKicker}</p>
+          <h1 className="mt-1 h-page">{t.admin.exercisesTitle}</h1>
           <p className="mt-1 text-muted">
-            Tap any exercise to add it to a client&apos;s training program.
+            {t.admin.exercisesBlurb}
           </p>
         </div>
         <button onClick={openNew} className="btn btn-primary">
-          <PlusIcon size={16} /> New exercise
+          <PlusIcon size={16} /> {t.admin.newExercise}
         </button>
       </header>
 
@@ -96,13 +97,13 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, muscle, equipment…"
+            placeholder={t.admin.searchExercises}
             className="input pl-9"
           />
         </label>
         <div className="flex flex-wrap gap-1.5">
           <FilterChip active={filterCategory === "All"} onClick={() => setFilterCategory("All")}>
-            All
+            {t.admin.all}
           </FilterChip>
           {CATEGORIES.map((c) => (
             <FilterChip
@@ -120,8 +121,8 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
         {Object.keys(grouped).length === 0 ? (
           <div className="empty-state">
             <DumbbellIcon size={28} className="text-ink-300" />
-            <p className="mt-3 font-medium text-ink-700">No exercises match</p>
-            <p className="mt-1 text-muted">Try a different search or filter.</p>
+            <p className="mt-3 font-medium text-ink-700">{t.admin.noExercisesMatch}</p>
+            <p className="mt-1 text-muted">{t.admin.tryDifferent}</p>
           </div>
         ) : (
           Object.entries(grouped).map(([cat, list]) => (
@@ -152,14 +153,14 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
                         <button
                           onClick={() => openEdit(ex)}
                           className="btn-icon"
-                          aria-label="Edit"
+                          aria-label={t.common.edit}
                         >
                           <PencilIcon size={16} />
                         </button>
                         <button
                           onClick={() => onDelete(ex.id)}
                           className="btn-icon hover:text-red-600"
-                          aria-label="Delete"
+                          aria-label={t.common.delete}
                         >
                           <TrashIcon size={16} />
                         </button>
@@ -231,6 +232,7 @@ function ExerciseForm({
   onSaved: (e: Exercise) => void;
 }) {
   const locale = useLocale();
+  const t = useDict();
   const [name, setName] = useState(initial?.name ?? "");
   const [category, setCategory] = useState(initial?.category ?? "Push");
   const [muscleGroup, setMuscleGroup] = useState(initial?.muscleGroup ?? "");
@@ -267,7 +269,7 @@ function ExerciseForm({
     });
     setSaving(false);
     if (!res.ok) {
-      setError("Save failed.");
+      setError(t.admin.saveFailed);
       return;
     }
     const saved = await res.json();
@@ -279,28 +281,28 @@ function ExerciseForm({
       <div className="w-full max-w-lg animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="h-section">{initial ? "Edit exercise" : "New exercise"}</h2>
-            <p className="text-muted">Add to your library so you can pick it for any client.</p>
+            <h2 className="h-section">{initial ? t.admin.editExerciseTitle : t.admin.addExerciseTitle}</h2>
+            <p className="text-muted">{t.admin.exerciseFormBlurb}</p>
           </div>
-          <button onClick={onClose} className="btn-icon" aria-label="Close">
+          <button onClick={onClose} className="btn-icon" aria-label={t.common.close}>
             <CloseIcon />
           </button>
         </div>
         <form onSubmit={onSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="label">Name</label>
+            <label className="label">{t.admin.namePh}</label>
             <input
               required
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input mt-1"
-              placeholder="e.g. Barbell Bench Press"
+              placeholder={t.admin.nameExercisePh}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Category</label>
+              <label className="label">{t.admin.categoryLabel}</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -312,7 +314,7 @@ function ExerciseForm({
               </select>
             </div>
             <div>
-              <label className="label">Equipment</label>
+              <label className="label">{t.admin.equipmentLabel}</label>
               <select
                 value={equipment}
                 onChange={(e) => setEquipment(e.target.value)}
@@ -326,17 +328,17 @@ function ExerciseForm({
             </div>
           </div>
           <div>
-            <label className="label">Muscle group</label>
+            <label className="label">{t.admin.muscleGroupLabel}</label>
             <input
               value={muscleGroup}
               onChange={(e) => setMuscleGroup(e.target.value)}
               className="input mt-1"
-              placeholder="chest, back, quads..."
+              placeholder={t.admin.musclePlaceholder}
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="label">Sets</label>
+              <label className="label">{t.admin.setsLabel}</label>
               <input
                 type="number"
                 min={1}
@@ -346,7 +348,7 @@ function ExerciseForm({
               />
             </div>
             <div>
-              <label className="label">Reps</label>
+              <label className="label">{t.admin.repsLabel}</label>
               <input
                 value={defaultReps}
                 onChange={(e) => setDefaultReps(e.target.value)}
@@ -355,7 +357,7 @@ function ExerciseForm({
               />
             </div>
             <div>
-              <label className="label">Rest</label>
+              <label className="label">{t.admin.restLabel}</label>
               <input
                 value={defaultRest}
                 onChange={(e) => setDefaultRest(e.target.value)}
@@ -365,7 +367,7 @@ function ExerciseForm({
             </div>
           </div>
           <div>
-            <label className="label">Notes</label>
+            <label className="label">{t.admin.notesLabel}</label>
             <textarea
               rows={2}
               value={notes}
@@ -378,10 +380,10 @@ function ExerciseForm({
           )}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
+              {t.common.cancel}
             </button>
             <button type="submit" disabled={saving} className="btn btn-primary">
-              {saving ? "Saving…" : initial ? "Save changes" : "Add exercise"}
+              {saving ? t.admin.savingDots : initial ? t.admin.saveChangesBtn : t.admin.addExerciseBtn}
             </button>
           </div>
         </form>

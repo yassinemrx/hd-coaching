@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDict } from "@/components/I18nProvider";
 
 export default function NewClientForm() {
+  const t = useDict();
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,7 +25,7 @@ export default function NewClientForm() {
     setSubmitting(false);
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError(typeof j.error === "string" ? j.error : "Could not create client.");
+      setError(typeof j.error === "string" ? j.error : t.admin.couldNotCreate);
       return;
     }
     router.push("/admin/clients");
@@ -33,7 +35,7 @@ export default function NewClientForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="label" htmlFor="name">Full name</label>
+        <label className="label" htmlFor="name">{t.admin.fullName}</label>
         <input
           id="name"
           required
@@ -43,7 +45,7 @@ export default function NewClientForm() {
         />
       </div>
       <div>
-        <label className="label" htmlFor="email">Email (used as login)</label>
+        <label className="label" htmlFor="email">{t.admin.emailLogin}</label>
         <input
           id="email"
           type="email"
@@ -54,7 +56,7 @@ export default function NewClientForm() {
         />
       </div>
       <div>
-        <label className="label" htmlFor="password">Initial password</label>
+        <label className="label" htmlFor="password">{t.admin.initialPassword}</label>
         <input
           id="password"
           type="text"
@@ -63,14 +65,14 @@ export default function NewClientForm() {
           className="input mt-1"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 6 characters"
+          placeholder={t.admin.atLeast6}
         />
       </div>
       {error && (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
       <button type="submit" className="btn btn-primary" disabled={submitting}>
-        {submitting ? "Creating…" : "Create client"}
+        {submitting ? t.admin.creating : t.admin.createClient}
       </button>
     </form>
   );

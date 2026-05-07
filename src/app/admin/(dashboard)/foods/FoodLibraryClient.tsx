@@ -10,7 +10,7 @@ import {
   SaladIcon,
   CloseIcon,
 } from "@/components/Icon";
-import { useLocale } from "@/components/I18nProvider";
+import { useDict, useLocale } from "@/components/I18nProvider";
 import { trFoodName, trCategory, trUnit } from "@/lib/i18n/dynamic";
 
 type Food = {
@@ -32,6 +32,7 @@ const UNITS = ["g", "ml", "piece", "cup", "scoop", "slice", "tbsp"];
 export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useDict();
   const [items, setItems] = useState(initial);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
@@ -62,24 +63,24 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
     setShowForm(true);
   }
   async function onDelete(id: string) {
-    if (!confirm("Delete this food?")) return;
+    if (!confirm(t.admin.deleteFoodConfirm)) return;
     const res = await fetch(`/api/foods/${id}`, { method: "DELETE" });
     if (res.ok) setItems((arr) => arr.filter((x) => x.id !== id));
-    else alert("Could not delete (it may be in use).");
+    else alert(t.admin.couldNotDeleteFood);
   }
 
   return (
     <>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Library</p>
-          <h1 className="mt-1 h-page">Foods</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">{t.admin.libraryKicker}</p>
+          <h1 className="mt-1 h-page">{t.admin.foodsTitle}</h1>
           <p className="mt-1 text-muted">
-            Build meals fast — pick a food and a quantity for each client.
+            {t.admin.foodsBlurb}
           </p>
         </div>
         <button onClick={openNew} className="btn btn-primary">
-          <PlusIcon size={16} /> New food
+          <PlusIcon size={16} /> {t.admin.newFood}
         </button>
       </header>
 
@@ -89,12 +90,12 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search foods…"
+            placeholder={t.admin.searchFoodsShort}
             className="input pl-9"
           />
         </label>
         <div className="flex flex-wrap gap-1.5">
-          <FilterChip active={filter === "All"} onClick={() => setFilter("All")}>All</FilterChip>
+          <FilterChip active={filter === "All"} onClick={() => setFilter("All")}>{t.admin.all}</FilterChip>
           {CATEGORIES.map((c) => (
             <FilterChip key={c} active={filter === c} onClick={() => setFilter(c)}>
               {trCategory(c, locale)}
@@ -107,8 +108,8 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
         {Object.keys(grouped).length === 0 ? (
           <div className="empty-state">
             <SaladIcon size={28} className="text-ink-300" />
-            <p className="mt-3 font-medium text-ink-700">No foods match</p>
-            <p className="mt-1 text-muted">Add a new food or change the filter.</p>
+            <p className="mt-3 font-medium text-ink-700">{t.admin.noFoodsMatch}</p>
+            <p className="mt-1 text-muted">{t.admin.addOrChangeFilter}</p>
           </div>
         ) : (
           Object.entries(grouped).map(([cat, list]) => (
@@ -127,23 +128,23 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
                       <div className="min-w-0 flex-1">
                         <h3 className="truncate font-semibold text-ink-900">{trFoodName(f.name, locale)}</h3>
                         <p className="mt-0.5 text-xs text-ink-400">
-                          per {f.perAmount} {trUnit(f.unit, locale)}
+                          {f.perAmount} {trUnit(f.unit, locale)}
                         </p>
                         <div className="mt-2 grid grid-cols-4 gap-1 text-center">
-                          <Macro label="kcal" value={Math.round(f.calories)} />
+                          <Macro label={t.nutrition.kcal} value={Math.round(f.calories)} />
                           <Macro label="P" value={f.protein.toFixed(1)} />
                           <Macro label="C" value={f.carbs.toFixed(1)} />
                           <Macro label="F" value={f.fat.toFixed(1)} />
                         </div>
                       </div>
                       <div className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                        <button onClick={() => openEdit(f)} className="btn-icon" aria-label="Edit">
+                        <button onClick={() => openEdit(f)} className="btn-icon" aria-label={t.common.edit}>
                           <PencilIcon size={16} />
                         </button>
                         <button
                           onClick={() => onDelete(f.id)}
                           className="btn-icon hover:text-red-600"
-                          aria-label="Delete"
+                          aria-label={t.common.delete}
                         >
                           <TrashIcon size={16} />
                         </button>
@@ -224,6 +225,7 @@ function FoodForm({
   onSaved: (f: Food) => void;
 }) {
   const locale = useLocale();
+  const t = useDict();
   const [name, setName] = useState(initial?.name ?? "");
   const [category, setCategory] = useState(initial?.category ?? "Protein");
   const [unit, setUnit] = useState(initial?.unit ?? "g");
@@ -260,7 +262,7 @@ function FoodForm({
     });
     setSaving(false);
     if (!res.ok) {
-      setError("Save failed.");
+      setError(t.admin.saveFailed);
       return;
     }
     const saved = await res.json();
@@ -272,28 +274,28 @@ function FoodForm({
       <div className="w-full max-w-lg animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="h-section">{initial ? "Edit food" : "New food"}</h2>
-            <p className="text-muted">Macros stored per the amount you set below.</p>
+            <h2 className="h-section">{initial ? t.admin.editFoodTitle : t.admin.addFoodTitle}</h2>
+            <p className="text-muted">{t.admin.foodFormBlurb}</p>
           </div>
-          <button onClick={onClose} className="btn-icon" aria-label="Close">
+          <button onClick={onClose} className="btn-icon" aria-label={t.common.close}>
             <CloseIcon />
           </button>
         </div>
         <form onSubmit={onSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="label">Name</label>
+            <label className="label">{t.admin.namePh}</label>
             <input
               required
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input mt-1"
-              placeholder="Chicken breast (cooked)"
+              placeholder={t.admin.nameFoodPh}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Category</label>
+              <label className="label">{t.admin.categoryLabel}</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -305,7 +307,7 @@ function FoodForm({
               </select>
             </div>
             <div>
-              <label className="label">Unit</label>
+              <label className="label">{t.admin.unitLabel}</label>
               <select value={unit} onChange={(e) => setUnit(e.target.value)} className="input mt-1">
                 {UNITS.map((u) => (
                   <option key={u} value={u}>{trUnit(u, locale)}</option>
@@ -314,7 +316,7 @@ function FoodForm({
             </div>
           </div>
           <div>
-            <label className="label">Per amount (in the unit above)</label>
+            <label className="label">{t.admin.perAmountLabel}</label>
             <input
               type="number"
               step="0.1"
@@ -325,12 +327,12 @@ function FoodForm({
               className="input mt-1"
             />
             <p className="mt-1 text-xs text-ink-400">
-              e.g. 100 (per 100g) or 1 (per piece). Macros below are for this amount.
+              {t.admin.perAmountHint}
             </p>
           </div>
           <div className="grid grid-cols-4 gap-3">
             <div>
-              <label className="label">Calories</label>
+              <label className="label">{t.admin.caloriesLabel}</label>
               <input
                 type="number"
                 step="0.1"
@@ -341,7 +343,7 @@ function FoodForm({
               />
             </div>
             <div>
-              <label className="label">Protein g</label>
+              <label className="label">{t.admin.proteinG}</label>
               <input
                 type="number"
                 step="0.1"
@@ -352,7 +354,7 @@ function FoodForm({
               />
             </div>
             <div>
-              <label className="label">Carbs g</label>
+              <label className="label">{t.admin.carbsG}</label>
               <input
                 type="number"
                 step="0.1"
@@ -363,7 +365,7 @@ function FoodForm({
               />
             </div>
             <div>
-              <label className="label">Fat g</label>
+              <label className="label">{t.admin.fatG}</label>
               <input
                 type="number"
                 step="0.1"
@@ -375,7 +377,7 @@ function FoodForm({
             </div>
           </div>
           <div>
-            <label className="label">Notes (optional)</label>
+            <label className="label">{t.admin.notesOptional}</label>
             <input
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -387,10 +389,10 @@ function FoodForm({
           )}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
+              {t.common.cancel}
             </button>
             <button type="submit" disabled={saving} className="btn btn-primary">
-              {saving ? "Saving…" : initial ? "Save changes" : "Add food"}
+              {saving ? t.admin.savingDots : initial ? t.admin.saveChangesBtn : t.admin.addFoodBtn}
             </button>
           </div>
         </form>

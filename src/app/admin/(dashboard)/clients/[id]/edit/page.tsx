@@ -2,14 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import EditClientForm from "./EditClientForm";
+import { getDict } from "@/lib/i18n/server";
 
 export const metadata = { title: "Edit client — Admin" };
+export const dynamic = "force-dynamic";
 
 export default async function EditClientPage({ params }: { params: { id: string } }) {
-  const client = await prisma.user.findUnique({
-    where: { id: params.id },
-    select: { id: true, name: true, email: true, role: true },
-  });
+  const [client, t] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: params.id },
+      select: { id: true, name: true, email: true, role: true },
+    }),
+    getDict(),
+  ]);
   if (!client || client.role !== "USER") notFound();
 
   return (
@@ -18,9 +23,9 @@ export default async function EditClientPage({ params }: { params: { id: string 
         href={`/admin/clients/${client.id}`}
         className="text-sm text-brand-700 hover:underline"
       >
-        ← Back to {client.name}
+        {t.admin.backToClient.replace("{name}", client.name)}
       </Link>
-      <h1 className="mt-2 text-2xl font-bold text-slate-900">Edit client</h1>
+      <h1 className="mt-2 text-2xl font-bold text-slate-900">{t.admin.editClientTitle}</h1>
       <div className="card mt-6">
         <EditClientForm
           id={client.id}

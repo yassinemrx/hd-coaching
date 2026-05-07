@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDict } from "@/components/I18nProvider";
 
 export default function EditClientForm({
   id,
@@ -10,6 +11,7 @@ export default function EditClientForm({
   id: string;
   defaults: { name: string; email: string };
 }) {
+  const t = useDict();
   const router = useRouter();
   const [name, setName] = useState(defaults.name);
   const [email, setEmail] = useState(defaults.email);
@@ -33,7 +35,7 @@ export default function EditClientForm({
     setSubmitting(false);
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      setError(typeof j.error === "string" ? j.error : "Could not update.");
+      setError(typeof j.error === "string" ? j.error : t.admin.couldNotUpdate);
       return;
     }
     setPassword("");
@@ -44,7 +46,7 @@ export default function EditClientForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="label" htmlFor="name">Name</label>
+        <label className="label" htmlFor="name">{t.admin.nameField}</label>
         <input
           id="name"
           required
@@ -54,7 +56,7 @@ export default function EditClientForm({
         />
       </div>
       <div>
-        <label className="label" htmlFor="email">Email</label>
+        <label className="label" htmlFor="email">{t.admin.emailField}</label>
         <input
           id="email"
           type="email"
@@ -65,7 +67,7 @@ export default function EditClientForm({
         />
       </div>
       <div>
-        <label className="label" htmlFor="password">New password (optional)</label>
+        <label className="label" htmlFor="password">{t.admin.newPasswordOptional}</label>
         <input
           id="password"
           type="text"
@@ -73,7 +75,7 @@ export default function EditClientForm({
           className="input mt-1"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Leave blank to keep current password"
+          placeholder={t.admin.leaveBlankPassword}
         />
       </div>
       {error && (
@@ -81,11 +83,11 @@ export default function EditClientForm({
       )}
       {ok && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-          Changes saved.
+          {t.admin.changesSaved}
         </p>
       )}
       <button type="submit" className="btn btn-primary" disabled={submitting}>
-        {submitting ? "Saving…" : "Save changes"}
+        {submitting ? t.admin.savingDots : t.admin.saveChangesBtn}
       </button>
     </form>
   );

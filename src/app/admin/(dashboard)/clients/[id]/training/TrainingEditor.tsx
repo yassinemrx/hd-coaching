@@ -12,7 +12,7 @@ import {
   DumbbellIcon,
   CheckIcon,
 } from "@/components/Icon";
-import { useLocale } from "@/components/I18nProvider";
+import { useDict, useLocale } from "@/components/I18nProvider";
 import { trExerciseName, trCategory, trMuscleGroup, trEquipment } from "@/lib/i18n/dynamic";
 
 type LibraryItem = {
@@ -57,6 +57,7 @@ export default function TrainingEditor({
 }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useDict();
   const [state, setState] = useState<Initial>(initial ?? EMPTY);
   const [pickerForDay, setPickerForDay] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -156,12 +157,12 @@ export default function TrainingEditor({
     e.preventDefault();
     setError(null);
     setOk(false);
-    if (!state.title.trim()) return setError("Program title is required.");
+    if (!state.title.trim()) return setError(t.admin.programTitleReq);
     for (const d of state.days) {
-      if (!d.dayLabel.trim()) return setError("Each day needs a label.");
+      if (!d.dayLabel.trim()) return setError(t.admin.dayLabelReq);
       for (const ex of d.exercises) {
         if (!ex.name.trim() || !ex.reps.trim() || ex.sets < 1)
-          return setError("Each exercise needs a name, sets ≥ 1, and reps.");
+          return setError(t.admin.exerciseFieldsReq);
       }
     }
     setSaving(true);
@@ -189,7 +190,7 @@ export default function TrainingEditor({
       body: JSON.stringify(payload),
     });
     setSaving(false);
-    if (!res.ok) return setError("Save failed.");
+    if (!res.ok) return setError(t.admin.saveFailed);
     setOk(true);
     router.refresh();
   }
@@ -198,18 +199,18 @@ export default function TrainingEditor({
     <form onSubmit={onSubmit} className="mt-6 space-y-6 pb-24">
       <div className="card space-y-4">
         <div>
-          <label className="label">Program title</label>
+          <label className="label">{t.admin.programTitle}</label>
           <input
             required
             className="input mt-1"
             value={state.title}
             onChange={(e) => patch({ title: e.target.value })}
-            placeholder="e.g. Push / Pull / Legs — 5 weeks"
+            placeholder={t.admin.programTitlePh}
           />
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="label">Start date</label>
+            <label className="label">{t.admin.startDate}</label>
             <input
               type="date"
               className="input mt-1"
@@ -219,7 +220,7 @@ export default function TrainingEditor({
           </div>
         </div>
         <div>
-          <label className="label">Coach notes</label>
+          <label className="label">{t.admin.coachNotes}</label>
           <textarea
             rows={3}
             className="input mt-1"
@@ -237,17 +238,17 @@ export default function TrainingEditor({
                 className="input max-w-md"
                 value={day.dayLabel}
                 onChange={(e) => setDay(di, { dayLabel: e.target.value })}
-                placeholder="Monday — Push"
+                placeholder={t.admin.dayLabelPh}
               />
               <div className="flex gap-2">
-                <button type="button" onClick={() => moveDay(di, -1)} className="btn btn-secondary px-3" aria-label="Move up">
+                <button type="button" onClick={() => moveDay(di, -1)} className="btn btn-secondary px-3" aria-label={t.admin.moveUp}>
                   <ArrowUpIcon size={16} />
                 </button>
-                <button type="button" onClick={() => moveDay(di, 1)} className="btn btn-secondary px-3" aria-label="Move down">
+                <button type="button" onClick={() => moveDay(di, 1)} className="btn btn-secondary px-3" aria-label={t.admin.moveDown}>
                   <ArrowDownIcon size={16} />
                 </button>
                 <button type="button" onClick={() => removeDay(di)} className="btn btn-danger">
-                  Remove day
+                  {t.admin.removeDay}
                 </button>
               </div>
             </div>
@@ -256,7 +257,7 @@ export default function TrainingEditor({
               {day.exercises.length === 0 && (
                 <div className="empty-state py-6">
                   <DumbbellIcon size={22} className="text-ink-300" />
-                  <p className="mt-2 text-sm text-ink-600">No exercises yet — pick from your library.</p>
+                  <p className="mt-2 text-sm text-ink-600">{t.admin.noExercisesYet}</p>
                 </div>
               )}
               {day.exercises.map((ex, ei) => (
@@ -266,20 +267,20 @@ export default function TrainingEditor({
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-ink-900">{trExerciseName(ex.name, locale)}</span>
                         {ex.libraryId ? (
-                          <span className="chip chip-brand">From library</span>
+                          <span className="chip chip-brand">{t.admin.fromLibrary}</span>
                         ) : (
-                          <span className="chip">Custom</span>
+                          <span className="chip">{t.admin.custom}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex shrink-0 gap-1">
-                      <button type="button" onClick={() => moveExercise(di, ei, -1)} className="btn-icon" aria-label="Move up">
+                      <button type="button" onClick={() => moveExercise(di, ei, -1)} className="btn-icon" aria-label={t.admin.moveUp}>
                         <ArrowUpIcon size={14} />
                       </button>
-                      <button type="button" onClick={() => moveExercise(di, ei, 1)} className="btn-icon" aria-label="Move down">
+                      <button type="button" onClick={() => moveExercise(di, ei, 1)} className="btn-icon" aria-label={t.admin.moveDown}>
                         <ArrowDownIcon size={14} />
                       </button>
-                      <button type="button" onClick={() => removeExercise(di, ei)} className="btn-icon hover:text-red-600" aria-label="Remove">
+                      <button type="button" onClick={() => removeExercise(di, ei)} className="btn-icon hover:text-red-600" aria-label={t.admin.remove}>
                         <TrashIcon size={14} />
                       </button>
                     </div>
@@ -287,7 +288,7 @@ export default function TrainingEditor({
 
                   <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <div>
-                      <label className="label">Sets</label>
+                      <label className="label">{t.admin.setsLabel}</label>
                       <input
                         type="number"
                         min={1}
@@ -297,7 +298,7 @@ export default function TrainingEditor({
                       />
                     </div>
                     <div>
-                      <label className="label">Reps</label>
+                      <label className="label">{t.admin.repsLabel}</label>
                       <input
                         value={ex.reps}
                         onChange={(e) => setExercise(di, ei, { reps: e.target.value })}
@@ -306,7 +307,7 @@ export default function TrainingEditor({
                       />
                     </div>
                     <div>
-                      <label className="label">Rest</label>
+                      <label className="label">{t.admin.restLabel}</label>
                       <input
                         value={ex.rest}
                         onChange={(e) => setExercise(di, ei, { rest: e.target.value })}
@@ -315,12 +316,12 @@ export default function TrainingEditor({
                       />
                     </div>
                     <div>
-                      <label className="label">Notes</label>
+                      <label className="label">{t.admin.notesLabel}</label>
                       <input
                         value={ex.notes}
                         onChange={(e) => setExercise(di, ei, { notes: e.target.value })}
                         className="input mt-1"
-                        placeholder="optional"
+                        placeholder={t.admin.optional}
                       />
                     </div>
                   </div>
@@ -331,23 +332,23 @@ export default function TrainingEditor({
                 onClick={() => setPickerForDay(di)}
                 className="btn btn-secondary w-full sm:w-auto"
               >
-                <PlusIcon size={16} /> Add exercise from library
+                <PlusIcon size={16} /> {t.admin.addExerciseFromLib}
               </button>
             </div>
           </div>
         ))}
         <button type="button" onClick={addDay} className="btn btn-secondary">
-          <PlusIcon size={16} /> Add day
+          <PlusIcon size={16} /> {t.admin.addDay}
         </button>
       </div>
 
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-      {ok && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">Saved.</p>}
+      {ok && <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{t.admin.saved}</p>}
 
       <div className="fixed bottom-4 left-0 right-0 z-30 flex justify-center px-4">
         <button type="submit" className="btn btn-primary shadow-glow" disabled={saving}>
           <CheckIcon size={16} />
-          {saving ? "Saving…" : "Save program"}
+          {saving ? t.admin.savingDots : t.admin.saveProgram}
         </button>
       </div>
 
@@ -374,6 +375,7 @@ function ExercisePicker({
   onPick: (l: LibraryItem) => void;
 }) {
   const locale = useLocale();
+  const t = useDict();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
@@ -399,10 +401,10 @@ function ExercisePicker({
       <div className="flex h-[85vh] w-full max-w-2xl flex-col animate-slide-in rounded-t-2xl bg-white shadow-soft sm:rounded-2xl">
         <div className="flex items-center justify-between border-b border-ink-100 p-4">
           <div>
-            <h2 className="h-section">Exercise library</h2>
-            <p className="text-xs text-ink-500">Tap any exercise to add it.</p>
+            <h2 className="h-section">{t.admin.exerciseLibraryTitle}</h2>
+            <p className="text-xs text-ink-500">{t.admin.tapAnyExercise}</p>
           </div>
-          <button onClick={onClose} className="btn-icon" aria-label="Close">
+          <button onClick={onClose} className="btn-icon" aria-label={t.common.close}>
             <CloseIcon />
           </button>
         </div>
@@ -413,7 +415,7 @@ function ExercisePicker({
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search exercises…"
+              placeholder={t.admin.searchExercisesShort}
               className="input pl-9"
             />
           </label>
@@ -430,14 +432,14 @@ function ExercisePicker({
                     : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
                 }
               >
-                {c === "All" ? c : trCategory(c, locale)}
+                {c === "All" ? t.admin.all : trCategory(c, locale)}
               </button>
             ))}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-4 pb-4">
           {filtered.length === 0 ? (
-            <p className="py-8 text-center text-sm text-ink-400">No matches.</p>
+            <p className="py-8 text-center text-sm text-ink-400">{t.admin.noMatches}</p>
           ) : (
             <ul className="space-y-2">
               {filtered.map((l) => (
