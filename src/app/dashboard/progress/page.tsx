@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import WeightSection from "./WeightSection";
 import MeasurementsSection from "./MeasurementsSection";
 import PhotosSection from "./PhotosSection";
+import { getDict } from "@/lib/i18n/server";
 
 export const metadata = { title: "Progress — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function ProgressPage() {
-  const user = await requireClient();
+  const [user, t] = await Promise.all([requireClient(), getDict()]);
 
   const since = new Date();
   since.setDate(since.getDate() - 90);
@@ -33,10 +34,8 @@ export default async function ProgressPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Your progress</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Keep logs consistent — small daily entries beat occasional perfect ones.
-        </p>
+        <h1 className="text-2xl font-bold text-slate-900">{t.progress.title}</h1>
+        <p className="mt-1 text-sm text-slate-500">{t.progress.blurb}</p>
       </header>
 
       <WeightSection

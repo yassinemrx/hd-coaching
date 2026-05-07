@@ -2,12 +2,13 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { DumbbellIcon, ChevronDownIcon } from "@/components/Icon";
+import { getDict } from "@/lib/i18n/server";
 
 export const metadata = { title: "Training — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function TrainingPage() {
-  const user = await requireClient();
+  const [user, t] = await Promise.all([requireClient(), getDict()]);
   const program = await prisma.trainingProgram.findUnique({
     where: { userId: user.id },
     include: {
@@ -27,8 +28,8 @@ export default async function TrainingPage() {
     return (
       <div className="empty-state">
         <DumbbellIcon size={28} className="text-ink-300" />
-        <p className="mt-3 font-medium text-ink-700">No training program yet</p>
-        <p className="mt-1 text-muted">Your coach hasn&apos;t assigned a program. Check back soon.</p>
+        <p className="mt-3 font-medium text-ink-700">{t.training.noProgram}</p>
+        <p className="mt-1 text-muted">{t.training.noProgramSub}</p>
       </div>
     );
   }
@@ -36,11 +37,11 @@ export default async function TrainingPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Your program</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">{t.training.yourProgram}</p>
         <h1 className="mt-1 h-page">{program.title}</h1>
         {program.startDate && (
           <p className="mt-1 text-xs text-ink-500">
-            Started {format(new Date(program.startDate), "MMM d, yyyy")}
+            {t.training.started} {format(new Date(program.startDate), "MMM d, yyyy")}
           </p>
         )}
         {program.notes && (
@@ -61,7 +62,7 @@ export default async function TrainingPage() {
                   <DumbbellIcon size={18} />
                 </span>
                 <h2 className="text-base font-semibold text-ink-900">{day.dayLabel}</h2>
-                <span className="chip">{day.exercises.length} exercises</span>
+                <span className="chip">{day.exercises.length} {t.training.exercises}</span>
               </div>
               <ChevronDownIcon size={18} className="text-ink-400 transition-transform group-open:rotate-180" />
             </summary>
@@ -84,9 +85,9 @@ export default async function TrainingPage() {
                       )}
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center">
-                      <Stat label="Sets" value={ex.sets} />
-                      <Stat label="Reps" value={ex.reps} />
-                      <Stat label="Rest" value={ex.rest || "—"} />
+                      <Stat label={t.training.sets} value={ex.sets} />
+                      <Stat label={t.training.reps} value={ex.reps} />
+                      <Stat label={t.training.rest} value={ex.rest || "—"} />
                     </div>
                   </div>
                   {ex.notes && (

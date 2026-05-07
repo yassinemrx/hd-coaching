@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getDict } from "@/lib/i18n/server";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 import {
   DumbbellIcon,
   SaladIcon,
@@ -16,7 +18,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  const [session, t] = await Promise.all([getServerSession(authOptions), getDict()]);
   const isAdmin = session?.user?.role === "ADMIN";
   const isClient = session?.user?.role === "USER";
   const dashHref = isAdmin ? "/admin" : "/dashboard/progress";
@@ -37,28 +39,25 @@ export default async function Home() {
               href="#features"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline-block"
             >
-              Features
+              {t.nav.features}
             </a>
             <a
               href="#how"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-ink-600 hover:text-ink-900 sm:inline-block"
             >
-              How it works
+              {t.nav.howItWorks}
             </a>
+            <LocaleSwitcher />
             {session ? (
               <Link href={dashHref} className="btn btn-primary">
-                {isAdmin ? "Coach panel" : "My dashboard"}
+                {isAdmin ? t.nav.coachPanel : t.nav.myDashboard}
                 <ChevronRightIcon size={14} />
               </Link>
             ) : (
-              <>
-                <Link href="/login" className="btn btn-ghost">
-                  Sign in
-                </Link>
-                <Link href="/admin/login" className="btn btn-primary">
-                  Coach login
-                </Link>
-              </>
+              <Link href="/login" className="btn btn-primary">
+                {t.common.signIn}
+                <ChevronRightIcon size={14} />
+              </Link>
             )}
           </nav>
         </div>
@@ -74,48 +73,41 @@ export default async function Home() {
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <div className="animate-fade-in">
               <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
-                <SparkleIcon size={14} /> Personal coaching, reimagined
+                <SparkleIcon size={14} /> {t.home.badge}
               </div>
               <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl text-balance">
-                Train smarter.{" "}
+                {t.home.heroPart1}{" "}
                 <span className="bg-brand-gradient bg-clip-text text-transparent">
-                  Eat with intent.
+                  {t.home.heroPart2}
                 </span>{" "}
-                See your progress.
+                {t.home.heroPart3}
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-600">
-                HD Coaching is the private platform where your coach builds your training and
-                nutrition plan — and you log progress, weight, and photos every day. Simple,
-                focused, designed to help you stay on track.
+                {t.home.heroBlurb}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 {session ? (
                   <Link href={dashHref} className="btn btn-primary text-base">
-                    Open dashboard <ChevronRightIcon size={16} />
+                    {t.nav.openDashboard} <ChevronRightIcon size={16} />
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/login" className="btn btn-primary text-base">
-                      Client sign-in <ChevronRightIcon size={16} />
-                    </Link>
-                    <Link href="/admin/login" className="btn btn-secondary text-base">
-                      Coach login
-                    </Link>
-                  </>
+                  <Link href="/login" className="btn btn-primary text-base">
+                    {t.common.signIn} <ChevronRightIcon size={16} />
+                  </Link>
                 )}
               </div>
               <ul className="mt-8 grid gap-2 text-sm text-ink-600 sm:grid-cols-2">
                 <li className="flex items-center gap-2">
-                  <CheckIcon size={14} className="text-brand-600" /> Daily weight tracking
+                  <CheckIcon size={14} className="text-brand-600" /> {t.home.bullet1}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckIcon size={14} className="text-brand-600" /> Custom meal plans
+                  <CheckIcon size={14} className="text-brand-600" /> {t.home.bullet2}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckIcon size={14} className="text-brand-600" /> Personalized training
+                  <CheckIcon size={14} className="text-brand-600" /> {t.home.bullet3}
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckIcon size={14} className="text-brand-600" /> Weekly progress photos
+                  <CheckIcon size={14} className="text-brand-600" /> {t.home.bullet4}
                 </li>
               </ul>
             </div>
@@ -130,7 +122,7 @@ export default async function Home() {
                       <ChartIcon size={16} />
                     </span>
                     <div>
-                      <div className="text-xs text-ink-500">Weight last 30 days</div>
+                      <div className="text-xs text-ink-500">{t.home.visualLabel}</div>
                       <div className="font-display text-sm font-semibold text-ink-900">
                         81.4 kg
                       </div>
@@ -141,10 +133,10 @@ export default async function Home() {
                 <FakeChart />
 
                 <div className="mt-5 grid grid-cols-4 gap-2">
-                  <Stat label="Calories" value="2,180" accent="bg-amber-50 text-amber-700" />
-                  <Stat label="Protein" value="178g" accent="bg-blue-50 text-blue-700" />
-                  <Stat label="Carbs" value="215g" accent="bg-purple-50 text-purple-700" />
-                  <Stat label="Fat" value="68g" accent="bg-pink-50 text-pink-700" />
+                  <Stat label={t.nutrition.calories} value="2,180" accent="bg-amber-50 text-amber-700" />
+                  <Stat label={t.nutrition.protein} value="178g" accent="bg-blue-50 text-blue-700" />
+                  <Stat label={t.nutrition.carbs} value="215g" accent="bg-purple-50 text-purple-700" />
+                  <Stat label={t.nutrition.fat} value="68g" accent="bg-pink-50 text-pink-700" />
                 </div>
 
                 <div className="mt-5 rounded-lg border border-ink-100 p-3">
@@ -152,7 +144,7 @@ export default async function Home() {
                     <span className="grid h-7 w-7 place-items-center rounded-md bg-brand-50 text-brand-700">
                       <DumbbellIcon size={14} />
                     </span>
-                    <div className="text-xs font-semibold text-ink-700">Today — Push</div>
+                    <div className="text-xs font-semibold text-ink-700">{t.home.todayPush}</div>
                   </div>
                   <ul className="mt-2 space-y-1 text-xs text-ink-600">
                     <li className="flex justify-between">
@@ -179,50 +171,48 @@ export default async function Home() {
       <section id="features" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
-            Everything in one place
+            {t.home.featuresKicker}
           </p>
           <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl text-balance">
-            One platform for your coach and you
+            {t.home.featuresTitle}
           </h2>
-          <p className="mt-4 text-lg text-ink-600">
-            Built around what actually drives results — consistency, clear plans, honest tracking.
-          </p>
+          <p className="mt-4 text-lg text-ink-600">{t.home.featuresBlurb}</p>
         </div>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             icon={<ChartIcon size={20} />}
-            title="Progress tracking"
-            text="Log weight daily, body measurements weekly. Your coach sees real trends, not single data points."
+            title={t.home.f1Title}
+            text={t.home.f1Text}
             accent="bg-brand-50 text-brand-700"
           />
           <FeatureCard
             icon={<SaladIcon size={20} />}
-            title="Custom diet plans"
-            text="Macro targets and meals built from a real food library. Quantities in grams or pieces — no guesswork."
+            title={t.home.f2Title}
+            text={t.home.f2Text}
             accent="bg-blue-50 text-blue-700"
           />
           <FeatureCard
             icon={<DumbbellIcon size={20} />}
-            title="Training programs"
-            text="Day-by-day exercises with sets, reps, rest, and notes. Pulled from a curated exercise library."
+            title={t.home.f3Title}
+            text={t.home.f3Text}
             accent="bg-amber-50 text-amber-700"
           />
           <FeatureCard
             icon={<CameraIcon size={20} />}
-            title="Weekly photos"
-            text="Front, side, back. Side-by-side over time. Visual proof beats the scale on slow weeks."
+            title={t.home.f4Title}
+            text={t.home.f4Text}
             accent="bg-purple-50 text-purple-700"
           />
           <FeatureCard
             icon={<TargetIcon size={20} />}
-            title="Macro auto-calculation"
-            text="Pick a food, set the quantity. Calories, protein, carbs, fat update instantly. Hit your targets."
+            title={t.home.f5Title}
+            text={t.home.f5Text}
             accent="bg-pink-50 text-pink-700"
           />
           <FeatureCard
             icon={<FlameIcon size={20} />}
-            title="Private &amp; secure"
-            text="Each client only sees their own data. Coach access is fully gated. Encrypted in transit."
+            title={t.home.f6Title}
+            text={t.home.f6Text}
             accent="bg-red-50 text-red-700"
           />
         </div>
@@ -233,31 +223,17 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-widest text-brand-300">
-              How it works
+              {t.home.howKicker}
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl text-balance">
-              Three steps from sign-up to results
+              {t.home.howTitle}
             </h2>
-            <p className="mt-4 text-lg text-white/70">
-              Your coach handles the planning. You handle the work. The platform tracks the rest.
-            </p>
+            <p className="mt-4 text-lg text-white/70">{t.home.howBlurb}</p>
           </div>
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            <StepCard
-              num={1}
-              title="Get your account"
-              text="Your coach creates a private login for you. No public signup — this is invite-only coaching."
-            />
-            <StepCard
-              num={2}
-              title="Receive your plan"
-              text="A diet plan with daily macros and meals, plus a training program with exercises for each day."
-            />
-            <StepCard
-              num={3}
-              title="Track every day"
-              text="Log your weight, measurements, and weekly photos. Your coach watches the trend and adjusts."
-            />
+            <StepCard num={1} title={t.home.s1Title} text={t.home.s1Text} />
+            <StepCard num={2} title={t.home.s2Title} text={t.home.s2Text} />
+            <StepCard num={3} title={t.home.s3Title} text={t.home.s3Text} />
           </div>
         </div>
       </section>
@@ -269,31 +245,18 @@ export default async function Home() {
           <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-black/10 blur-2xl" />
           <div className="relative">
             <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl text-balance">
-              Ready to put in the work?
+              {t.home.finalTitle}
             </h2>
-            <p className="mt-3 max-w-xl text-white/90">
-              If you already have an account, sign in. Otherwise, contact your coach to be added.
-            </p>
+            <p className="mt-3 max-w-xl text-white/90">{t.home.finalBlurb}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               {session ? (
-                <Link
-                  href={dashHref}
-                  className="btn bg-white text-brand-700 hover:bg-ink-50"
-                >
-                  Open my dashboard <ChevronRightIcon size={16} />
+                <Link href={dashHref} className="btn bg-white text-brand-700 hover:bg-ink-50">
+                  {t.home.finalCtaIn} <ChevronRightIcon size={16} />
                 </Link>
               ) : (
-                <>
-                  <Link href="/login" className="btn bg-white text-brand-700 hover:bg-ink-50">
-                    Sign in <ChevronRightIcon size={16} />
-                  </Link>
-                  <Link
-                    href="/admin/login"
-                    className="btn bg-white/10 text-white ring-1 ring-inset ring-white/30 hover:bg-white/20"
-                  >
-                    Coach login
-                  </Link>
-                </>
+                <Link href="/login" className="btn bg-white text-brand-700 hover:bg-ink-50">
+                  {t.home.finalCta} <ChevronRightIcon size={16} />
+                </Link>
               )}
             </div>
           </div>
@@ -310,7 +273,7 @@ export default async function Home() {
             <span className="text-sm font-semibold text-ink-700">HD Coaching</span>
           </div>
           <p className="text-xs text-ink-500">
-            © {new Date().getFullYear()} HD Coaching. All rights reserved.
+            © {new Date().getFullYear()} HD Coaching. {t.home.footerRights}
           </p>
         </div>
       </footer>
@@ -379,7 +342,6 @@ function StepCard({
 }
 
 function FakeChart() {
-  // Stylised SVG chart showing a downward weight trend
   const points = [
     [0, 50],
     [10, 48],

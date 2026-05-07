@@ -2,14 +2,16 @@ import Link from "next/link";
 import { ChartIcon, SaladIcon, DumbbellIcon } from "@/components/Icon";
 import SignOutButton from "@/components/SignOutButton";
 import NavLink from "@/components/NavLink";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { requireClient } from "@/lib/session";
+import { getDict } from "@/lib/i18n/server";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireClient();
+  const [user, t] = await Promise.all([requireClient(), getDict()]);
   return (
     <div className="min-h-screen bg-ink-50">
       <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 backdrop-blur">
@@ -24,16 +26,17 @@ export default async function DashboardLayout({
           </Link>
           <nav className="flex items-center gap-1">
             <NavLink href="/dashboard/progress">
-              <span className="flex items-center gap-2"><ChartIcon size={16} /> Progress</span>
+              <span className="flex items-center gap-2"><ChartIcon size={16} /> {t.nav.progress}</span>
             </NavLink>
             <NavLink href="/dashboard/diet">
-              <span className="flex items-center gap-2"><SaladIcon size={16} /> Diet</span>
+              <span className="flex items-center gap-2"><SaladIcon size={16} /> {t.nav.diet}</span>
             </NavLink>
             <NavLink href="/dashboard/training">
-              <span className="flex items-center gap-2"><DumbbellIcon size={16} /> Training</span>
+              <span className="flex items-center gap-2"><DumbbellIcon size={16} /> {t.nav.training}</span>
             </NavLink>
           </nav>
           <div className="flex items-center gap-3">
+            <LocaleSwitcher />
             <span className="hidden text-sm font-medium text-ink-700 sm:inline">{user.name}</span>
             <SignOutButton />
           </div>

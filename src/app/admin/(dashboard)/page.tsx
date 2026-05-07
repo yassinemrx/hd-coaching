@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { formatDate } from "@/lib/week";
 import { UsersIcon, ChartIcon, CameraIcon, DumbbellIcon, SaladIcon, PlusIcon, ChevronRightIcon } from "@/components/Icon";
+import { getDict } from "@/lib/i18n/server";
 
 export const metadata = { title: "Admin — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
-  await requireAdmin();
+  const [, t] = await Promise.all([requireAdmin(), getDict()]);
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -33,39 +34,39 @@ export default async function AdminHome() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
-            Coach dashboard
+            {t.admin.coachDashboard}
           </p>
-          <h1 className="mt-1 h-page">Good day, Coach 👋</h1>
-          <p className="mt-1 text-muted">A quick view of your practice.</p>
+          <h1 className="mt-1 h-page">{t.admin.hello}</h1>
+          <p className="mt-1 text-muted">{t.admin.blurb}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/clients/new" className="btn btn-primary">
-            <PlusIcon size={16} /> New client
+            <PlusIcon size={16} /> {t.admin.newClient}
           </Link>
         </div>
       </header>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Clients"
+          label={t.admin.clientsCount}
           value={clientCount}
           icon={<UsersIcon size={18} />}
           accent="bg-brand-50 text-brand-700"
         />
         <StatCard
-          label="Logs (7d)"
+          label={t.admin.logs7d}
           value={recentLogs}
           icon={<ChartIcon size={18} />}
           accent="bg-blue-50 text-blue-700"
         />
         <StatCard
-          label="New photos (7d)"
+          label={t.admin.photos7d}
           value={recentPhotos}
           icon={<CameraIcon size={18} />}
           accent="bg-purple-50 text-purple-700"
         />
         <StatCard
-          label="Library items"
+          label={t.admin.libraryItems}
           value={exerciseCount + foodCount}
           icon={<DumbbellIcon size={18} />}
           accent="bg-amber-50 text-amber-700"
@@ -75,18 +76,18 @@ export default async function AdminHome() {
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="card lg:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="h-section">Recent clients</h2>
+            <h2 className="h-section">{t.admin.recentClients}</h2>
             <Link href="/admin/clients" className="text-sm font-medium text-brand-700 hover:text-brand-600">
-              View all
+              {t.admin.viewAll}
             </Link>
           </div>
           {latestClients.length === 0 ? (
             <div className="empty-state mt-4">
               <UsersIcon size={28} className="text-ink-300" />
-              <p className="mt-3 font-medium text-ink-700">No clients yet</p>
-              <p className="mt-1 text-muted">Add your first client to get started.</p>
+              <p className="mt-3 font-medium text-ink-700">{t.admin.noClients}</p>
+              <p className="mt-1 text-muted">{t.admin.noClientsSub}</p>
               <Link href="/admin/clients/new" className="btn btn-primary mt-4">
-                <PlusIcon size={16} /> Add client
+                <PlusIcon size={16} /> {t.admin.addClient}
               </Link>
             </div>
           ) : (
@@ -108,7 +109,7 @@ export default async function AdminHome() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="hidden text-xs text-ink-400 sm:inline">
-                        Added {formatDate(c.createdAt)}
+                        {t.admin.addedOn} {formatDate(c.createdAt)}
                       </span>
                       <ChevronRightIcon size={16} className="text-ink-300" />
                     </div>
@@ -120,11 +121,11 @@ export default async function AdminHome() {
         </section>
 
         <section className="card">
-          <h2 className="h-section">Quick actions</h2>
+          <h2 className="h-section">{t.admin.quickActions}</h2>
           <div className="mt-4 space-y-2">
-            <QuickLink href="/admin/clients/new" icon={<PlusIcon size={16} />} label="Add new client" />
-            <QuickLink href="/admin/exercises" icon={<DumbbellIcon size={16} />} label="Manage exercises" hint={`${exerciseCount} items`} />
-            <QuickLink href="/admin/foods" icon={<SaladIcon size={16} />} label="Manage foods" hint={`${foodCount} items`} />
+            <QuickLink href="/admin/clients/new" icon={<PlusIcon size={16} />} label={t.admin.addNewClient} />
+            <QuickLink href="/admin/exercises" icon={<DumbbellIcon size={16} />} label={t.admin.manageExercises} hint={`${exerciseCount} ${t.admin.itemsSuffix}`} />
+            <QuickLink href="/admin/foods" icon={<SaladIcon size={16} />} label={t.admin.manageFoods} hint={`${foodCount} ${t.admin.itemsSuffix}`} />
           </div>
         </section>
       </div>

@@ -13,13 +13,8 @@ import {
   MenuIcon,
   CloseIcon,
 } from "./Icon";
-
-const NAV = [
-  { href: "/admin", label: "Overview", icon: HomeIcon, exact: true },
-  { href: "/admin/clients", label: "Clients", icon: UsersIcon },
-  { href: "/admin/exercises", label: "Exercise library", icon: DumbbellIcon },
-  { href: "/admin/foods", label: "Food library", icon: SaladIcon },
-];
+import LocaleSwitcher from "./LocaleSwitcher";
+import { useDict } from "./I18nProvider";
 
 export default function AdminSidebar({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
@@ -33,14 +28,17 @@ export default function AdminSidebar({ name }: { name: string }) {
           </span>
           <span className="font-display text-base font-bold tracking-tight">HD Coaching</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="btn-icon"
-          aria-label="Open menu"
-        >
-          <MenuIcon />
-        </button>
+        <div className="flex items-center gap-2">
+          <LocaleSwitcher />
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="btn-icon"
+            aria-label="Open menu"
+          >
+            <MenuIcon />
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
@@ -50,11 +48,11 @@ export default function AdminSidebar({ name }: { name: string }) {
             className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-72 bg-ink-gradient text-white">
+          <div className="absolute inset-y-0 start-0 w-72 bg-ink-gradient text-white">
             <SidebarContent name={name} onNavigate={() => setOpen(false)} />
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-3 top-3 rounded-lg p-2 text-white/70 hover:bg-white/10"
+              className="absolute end-3 top-3 rounded-lg p-2 text-white/70 hover:bg-white/10"
               aria-label="Close menu"
             >
               <CloseIcon />
@@ -81,6 +79,14 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const t = useDict();
+
+  const NAV = [
+    { href: "/admin", label: t.nav.overview, icon: HomeIcon, exact: true },
+    { href: "/admin/clients", label: t.nav.clients, icon: UsersIcon, exact: false },
+    { href: "/admin/exercises", label: t.nav.exerciseLibrary, icon: DumbbellIcon, exact: false },
+    { href: "/admin/foods", label: t.nav.foodLibrary, icon: SaladIcon, exact: false },
+  ];
 
   return (
     <div className="flex h-full flex-col">
@@ -91,14 +97,18 @@ function SidebarContent({
           </span>
           <div>
             <div className="font-display text-base font-bold tracking-tight">HD Coaching</div>
-            <div className="text-xs text-white/40">Coach panel</div>
+            <div className="text-xs text-white/40">{t.nav.coachPanel}</div>
           </div>
         </Link>
       </div>
 
+      <div className="px-5 pb-3 hidden lg:block">
+        <LocaleSwitcher tone="dark" />
+      </div>
+
       <nav className="flex-1 px-3 py-2">
         <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
-          Workspace
+          {t.nav.workspace}
         </div>
         <ul className="space-y-1">
           {NAV.map((item) => {
@@ -132,13 +142,13 @@ function SidebarContent({
           </span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-medium">{name}</div>
-            <div className="text-xs text-white/40">Admin</div>
+            <div className="text-xs text-white/40">{t.common.admin}</div>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
             className="rounded-lg p-2 text-white/60 hover:bg-white/10 hover:text-white"
-            aria-label="Sign out"
+            aria-label={t.common.signOut}
           >
             <LogoutIcon size={18} />
           </button>

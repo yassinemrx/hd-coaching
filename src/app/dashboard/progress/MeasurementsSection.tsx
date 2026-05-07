@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { useDict } from "@/components/I18nProvider";
 
 type Entry = {
   id: string;
@@ -14,19 +15,23 @@ type Entry = {
   arms: number | null;
 };
 
-const FIELDS: { key: keyof Omit<Entry, "id" | "date">; label: string }[] = [
-  { key: "chest", label: "Chest" },
-  { key: "waist", label: "Waist" },
-  { key: "hips", label: "Hips" },
-  { key: "thighs", label: "Thighs" },
-  { key: "arms", label: "Arms" },
-];
+const FIELD_KEYS = ["chest", "waist", "hips", "thighs", "arms"] as const;
+type FieldKey = (typeof FIELD_KEYS)[number];
 
 export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
+  const t = useDict();
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const FIELDS: { key: FieldKey; label: string }[] = [
+    { key: "chest", label: t.progress.chest },
+    { key: "waist", label: t.progress.waist },
+    { key: "hips", label: t.progress.hips },
+    { key: "thighs", label: t.progress.thighs },
+    { key: "arms", label: t.progress.arms },
+  ];
 
   function set(key: string, val: string) {
     setValues((v) => ({ ...v, [key]: val }));
@@ -48,7 +53,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
       }
     }
     if (!any) {
-      setError("Enter at least one measurement.");
+      setError(t.progress.enterAtLeastOne);
       return;
     }
     setSubmitting(true);
@@ -59,7 +64,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
     });
     setSubmitting(false);
     if (!res.ok) {
-      setError("Could not save measurements.");
+      setError(t.progress.couldNotSaveMeasurements);
       return;
     }
     setValues({});
@@ -67,7 +72,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
   }
 
   async function onDelete(id: string) {
-    if (!confirm("Delete this entry?")) return;
+    if (!confirm(t.progress.deleteEntryConfirm)) return;
     const res = await fetch(`/api/measurements/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
   }
@@ -75,7 +80,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
   return (
     <section className="card">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Body measurements</h2>
+        <h2 className="text-lg font-semibold">{t.progress.bodyMeasurements}</h2>
         <span className="text-xs text-slate-400">cm</span>
       </div>
 
@@ -97,7 +102,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
         ))}
         <div className="col-span-2 sm:col-span-5 flex items-center gap-3">
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Saving…" : "Save measurements"}
+            {submitting ? t.common.saving : t.progress.saveMeasurements}
           </button>
           {error && <span className="text-sm text-red-600">{error}</span>}
         </div>
@@ -108,7 +113,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th className="px-4 py-2">Date</th>
+                <th className="px-4 py-2">{t.common.date}</th>
                 {FIELDS.map((f) => (
                   <th key={f.key} className="px-4 py-2">{f.label}</th>
                 ))}
@@ -131,7 +136,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
                       onClick={() => onDelete(e.id)}
                       className="text-xs text-slate-400 hover:text-red-600"
                     >
-                      Delete
+                      {t.common.delete}
                     </button>
                   </td>
                 </tr>
@@ -140,9 +145,7 @@ export default function MeasurementsSection({ entries }: { entries: Entry[] }) {
           </table>
         </div>
       ) : (
-        <p className="mt-6 text-sm text-slate-400">
-          No measurements yet — log your first set above.
-        </p>
+        <p className="mt-6 text-sm text-slate-400">{t.progress.noMeasurements}</p>
       )}
     </section>
   );

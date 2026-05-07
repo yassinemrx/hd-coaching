@@ -3,8 +3,10 @@
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useDict } from "@/components/I18nProvider";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
+  const t = useDict();
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
@@ -23,7 +25,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
     });
     setLoading(false);
     if (!res?.ok) {
-      setError("Invalid email or password.");
+      setError(t.auth.invalidCreds);
       return;
     }
     const dest = params.get("callbackUrl") || callbackUrl;
@@ -34,7 +36,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="label" htmlFor="email">Email</label>
+        <label className="label" htmlFor="email">{t.common.email}</label>
         <input
           id="email"
           type="email"
@@ -46,7 +48,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         />
       </div>
       <div>
-        <label className="label" htmlFor="password">Password</label>
+        <label className="label" htmlFor="password">{t.common.password}</label>
         <input
           id="password"
           type="password"
@@ -63,7 +65,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         </p>
       )}
       <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-        {loading ? "Signing in…" : "Sign in"}
+        {loading ? t.common.signingIn : t.common.signIn}
       </button>
     </form>
   );

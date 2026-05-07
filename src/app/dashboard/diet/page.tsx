@@ -1,12 +1,13 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { FlameIcon, SaladIcon } from "@/components/Icon";
+import { getDict } from "@/lib/i18n/server";
 
 export const metadata = { title: "Diet — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function DietPage() {
-  const user = await requireClient();
+  const [user, t] = await Promise.all([requireClient(), getDict()]);
   const plan = await prisma.dietPlan.findUnique({
     where: { userId: user.id },
     include: {
@@ -27,8 +28,8 @@ export default async function DietPage() {
     return (
       <div className="empty-state">
         <SaladIcon size={28} className="text-ink-300" />
-        <p className="mt-3 font-medium text-ink-700">No diet plan yet</p>
-        <p className="mt-1 text-muted">Your coach hasn&apos;t assigned a diet plan. Check back soon.</p>
+        <p className="mt-3 font-medium text-ink-700">{t.diet.noPlan}</p>
+        <p className="mt-1 text-muted">{t.diet.noPlanSub}</p>
       </div>
     );
   }
@@ -47,7 +48,7 @@ export default async function DietPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Your plan</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">{t.diet.yourPlan}</p>
         <h1 className="mt-1 h-page">{plan.title}</h1>
         {plan.notes && (
           <p className="mt-2 whitespace-pre-line text-sm text-ink-600">{plan.notes}</p>
@@ -57,19 +58,19 @@ export default async function DietPage() {
       {plan.macros && (
         <section>
           <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-ink-500">
-            Daily targets
+            {t.diet.dailyTargets}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <MacroCard label="Calories" value={plan.macros.calories} unit="kcal" accent="bg-amber-50 text-amber-700" />
-            <MacroCard label="Protein" value={plan.macros.protein} unit="g" accent="bg-blue-50 text-blue-700" />
-            <MacroCard label="Carbs" value={plan.macros.carbs} unit="g" accent="bg-purple-50 text-purple-700" />
-            <MacroCard label="Fat" value={plan.macros.fat} unit="g" accent="bg-pink-50 text-pink-700" />
+            <MacroCard label={t.nutrition.calories} value={plan.macros.calories} unit={t.nutrition.kcal} accent="bg-amber-50 text-amber-700" />
+            <MacroCard label={t.nutrition.protein} value={plan.macros.protein} unit="g" accent="bg-blue-50 text-blue-700" />
+            <MacroCard label={t.nutrition.carbs} value={plan.macros.carbs} unit="g" accent="bg-purple-50 text-purple-700" />
+            <MacroCard label={t.nutrition.fat} value={plan.macros.fat} unit="g" accent="bg-pink-50 text-pink-700" />
           </div>
         </section>
       )}
 
       <section>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-ink-500">Meals</h2>
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-ink-500">{t.diet.meals}</h2>
         <div className="space-y-3">
           {plan.meals.map((m) => {
             const totals = m.items.reduce(
@@ -89,7 +90,7 @@ export default async function DietPage() {
 
                 <ul className="mt-4 divide-y divide-ink-100">
                   {m.items.length === 0 && (
-                    <li className="py-2 text-sm text-ink-400">No items.</li>
+                    <li className="py-2 text-sm text-ink-400">{t.diet.noItems}</li>
                   )}
                   {m.items.map((it) => {
                     const q = macrosFor(it);
@@ -100,7 +101,7 @@ export default async function DietPage() {
                             {it.food ? it.food.name : it.customName || "Item"}
                           </p>
                           <p className="text-xs text-ink-500">
-                            {Math.round(q.cal)} kcal · P {q.p.toFixed(1)} · C {q.c.toFixed(1)} · F {q.f.toFixed(1)}
+                            {Math.round(q.cal)} {t.nutrition.kcal} · P {q.p.toFixed(1)} · C {q.c.toFixed(1)} · F {q.f.toFixed(1)}
                           </p>
                         </div>
                         <span className="ml-3 shrink-0 text-sm font-semibold text-ink-700">
@@ -113,9 +114,9 @@ export default async function DietPage() {
 
                 {m.items.length > 0 && (
                   <div className="mt-3 flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2 text-xs">
-                    <span className="font-medium text-ink-600">Meal total</span>
+                    <span className="font-medium text-ink-600">{t.diet.mealTotal}</span>
                     <span className="font-semibold text-ink-900">
-                      {Math.round(totals.cal)} kcal · P {totals.p.toFixed(0)} · C {totals.c.toFixed(0)} · F {totals.f.toFixed(0)}
+                      {Math.round(totals.cal)} {t.nutrition.kcal} · P {totals.p.toFixed(0)} · C {totals.c.toFixed(0)} · F {totals.f.toFixed(0)}
                     </span>
                   </div>
                 )}

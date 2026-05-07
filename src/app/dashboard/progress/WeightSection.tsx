@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import WeightChart from "@/components/WeightChart";
+import { useDict } from "@/components/I18nProvider";
 
 type Log = { id: string; date: string; weightKg: number };
 
 export default function WeightSection({ logs }: { logs: Log[] }) {
+  const t = useDict();
   const router = useRouter();
   const [weight, setWeight] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +26,7 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
     });
     setSubmitting(false);
     if (!res.ok) {
-      setError("Could not save. Check the value.");
+      setError(t.progress.couldNotSaveWeight);
       return;
     }
     setWeight("");
@@ -32,7 +34,7 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
   }
 
   async function onDelete(id: string) {
-    if (!confirm("Delete this log?")) return;
+    if (!confirm(t.progress.deleteLogConfirm)) return;
     const res = await fetch(`/api/weight/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
   }
@@ -44,13 +46,13 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
   return (
     <section className="card">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Weight</h2>
-        <span className="text-xs text-slate-400">Last 90 days</span>
+        <h2 className="text-lg font-semibold">{t.progress.weight}</h2>
+        <span className="text-xs text-slate-400">{t.progress.last90}</span>
       </div>
 
       <form onSubmit={onSubmit} className="mt-4 flex flex-wrap items-end gap-3">
         <div>
-          <label className="label" htmlFor="weight">Today&apos;s weight (kg)</label>
+          <label className="label" htmlFor="weight">{t.progress.todaysWeight}</label>
           <input
             id="weight"
             type="number"
@@ -61,11 +63,11 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
             className="input mt-1 w-40"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            placeholder="e.g. 81.4"
+            placeholder={t.progress.weightPlaceholder}
           />
         </div>
         <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? "Saving…" : "Log weight"}
+          {submitting ? t.common.saving : t.progress.logWeight}
         </button>
         {error && <span className="text-sm text-red-600">{error}</span>}
       </form>
@@ -79,8 +81,8 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Weight</th>
+                <th className="px-4 py-2">{t.common.date}</th>
+                <th className="px-4 py-2">{t.progress.weightCol}</th>
                 <th className="px-4 py-2"></th>
               </tr>
             </thead>
@@ -96,7 +98,7 @@ export default function WeightSection({ logs }: { logs: Log[] }) {
                       onClick={() => onDelete(l.id)}
                       className="text-xs text-slate-400 hover:text-red-600"
                     >
-                      Delete
+                      {t.common.delete}
                     </button>
                   </td>
                 </tr>
