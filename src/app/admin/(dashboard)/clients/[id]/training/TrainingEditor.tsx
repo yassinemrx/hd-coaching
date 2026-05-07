@@ -12,6 +12,8 @@ import {
   DumbbellIcon,
   CheckIcon,
 } from "@/components/Icon";
+import { useLocale } from "@/components/I18nProvider";
+import { trExerciseName, trCategory, trMuscleGroup, trEquipment } from "@/lib/i18n/dynamic";
 
 type LibraryItem = {
   id: string;
@@ -54,6 +56,7 @@ export default function TrainingEditor({
   library: LibraryItem[];
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const [state, setState] = useState<Initial>(initial ?? EMPTY);
   const [pickerForDay, setPickerForDay] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -261,7 +264,7 @@ export default function TrainingEditor({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-ink-900">{ex.name}</span>
+                        <span className="font-semibold text-ink-900">{trExerciseName(ex.name, locale)}</span>
                         {ex.libraryId ? (
                           <span className="chip chip-brand">From library</span>
                         ) : (
@@ -370,6 +373,7 @@ function ExercisePicker({
   onClose: () => void;
   onPick: (l: LibraryItem) => void;
 }) {
+  const locale = useLocale();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
@@ -426,7 +430,7 @@ function ExercisePicker({
                     : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
                 }
               >
-                {c}
+                {c === "All" ? c : trCategory(c, locale)}
               </button>
             ))}
           </div>
@@ -446,11 +450,11 @@ function ExercisePicker({
                     className="flex w-full items-center justify-between rounded-lg border border-ink-100 p-3 text-left transition-colors hover:border-brand-300 hover:bg-brand-50/30"
                   >
                     <div className="min-w-0">
-                      <div className="font-semibold text-ink-900">{l.name}</div>
+                      <div className="font-semibold text-ink-900">{trExerciseName(l.name, locale)}</div>
                       <div className="mt-0.5 flex flex-wrap gap-1">
-                        <span className="chip">{l.category}</span>
-                        {l.muscleGroup && <span className="chip chip-brand">{l.muscleGroup}</span>}
-                        {l.equipment && <span className="chip">{l.equipment}</span>}
+                        <span className="chip">{trCategory(l.category, locale)}</span>
+                        {l.muscleGroup && <span className="chip chip-brand">{trMuscleGroup(l.muscleGroup, locale)}</span>}
+                        {l.equipment && <span className="chip">{trEquipment(l.equipment, locale)}</span>}
                       </div>
                     </div>
                     <span className="text-xs text-ink-400">

@@ -1,13 +1,14 @@
 import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { FlameIcon, SaladIcon } from "@/components/Icon";
-import { getDict } from "@/lib/i18n/server";
+import { getDict, getLocale } from "@/lib/i18n/server";
+import { trFoodName, trUnit } from "@/lib/i18n/dynamic";
 
 export const metadata = { title: "Diet — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function DietPage() {
-  const [user, t] = await Promise.all([requireClient(), getDict()]);
+  const [user, t, locale] = await Promise.all([requireClient(), getDict(), getLocale()]);
   const plan = await prisma.dietPlan.findUnique({
     where: { userId: user.id },
     include: {
@@ -98,14 +99,14 @@ export default async function DietPage() {
                       <li key={it.id} className="flex items-center justify-between py-2">
                         <div className="min-w-0">
                           <p className="font-medium text-ink-800">
-                            {it.food ? it.food.name : it.customName || "Item"}
+                            {it.food ? trFoodName(it.food.name, locale) : it.customName || "Item"}
                           </p>
                           <p className="text-xs text-ink-500">
                             {Math.round(q.cal)} {t.nutrition.kcal} · P {q.p.toFixed(1)} · C {q.c.toFixed(1)} · F {q.f.toFixed(1)}
                           </p>
                         </div>
                         <span className="ml-3 shrink-0 text-sm font-semibold text-ink-700">
-                          {it.quantity} {it.unit}
+                          {it.quantity} {trUnit(it.unit, locale)}
                         </span>
                       </li>
                     );

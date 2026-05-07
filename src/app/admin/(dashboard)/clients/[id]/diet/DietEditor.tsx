@@ -12,6 +12,8 @@ import {
   SaladIcon,
   CheckIcon,
 } from "@/components/Icon";
+import { useLocale } from "@/components/I18nProvider";
+import { trFoodName, trCategory, trUnit } from "@/lib/i18n/dynamic";
 
 type Food = {
   id: string;
@@ -74,6 +76,7 @@ export default function DietEditor({
   foods: Food[];
 }) {
   const router = useRouter();
+  const locale = useLocale();
   const [state, setState] = useState<Initial>(initial ?? EMPTY);
   const [pickerForMeal, setPickerForMeal] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -305,7 +308,7 @@ export default function DietEditor({
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold text-ink-900">
-                          {food ? food.name : item.customName || "Custom item"}
+                          {food ? trFoodName(food.name, locale) : item.customName || "Custom item"}
                         </div>
                         <div className="text-xs text-ink-500">
                           {Math.round(m.cal)} kcal · P {m.p.toFixed(1)} · C {m.c.toFixed(1)} · F {m.f.toFixed(1)}
@@ -322,7 +325,7 @@ export default function DietEditor({
                           }
                           className="input w-24"
                         />
-                        <span className="text-sm text-ink-500">{item.unit}</span>
+                        <span className="text-sm text-ink-500">{trUnit(item.unit, locale)}</span>
                         <button
                           type="button"
                           onClick={() => removeItem(mi, ii)}
@@ -426,6 +429,7 @@ function FoodPicker({
   onClose: () => void;
   onAdd: (food: Food, qty: number) => void;
 }) {
+  const locale = useLocale();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<Food | null>(null);
@@ -479,15 +483,15 @@ function FoodPicker({
               ← Back to list
             </button>
             <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/40 p-4">
-              <h3 className="font-display text-lg font-bold text-ink-900">{selected.name}</h3>
+              <h3 className="font-display text-lg font-bold text-ink-900">{trFoodName(selected.name, locale)}</h3>
               <p className="mt-0.5 text-xs text-ink-500">
-                Per {selected.perAmount} {selected.unit}: {Math.round(selected.calories)} kcal · P{" "}
+                Per {selected.perAmount} {trUnit(selected.unit, locale)}: {Math.round(selected.calories)} kcal · P{" "}
                 {selected.protein.toFixed(1)} · C {selected.carbs.toFixed(1)} · F{" "}
                 {selected.fat.toFixed(1)}
               </p>
             </div>
             <div className="mt-4">
-              <label className="label">Quantity ({selected.unit})</label>
+              <label className="label">Quantity ({trUnit(selected.unit, locale)})</label>
               <input
                 autoFocus
                 type="number"
@@ -541,7 +545,7 @@ function FoodPicker({
                         : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
                     }
                   >
-                    {c}
+                    {c === "All" ? c : trCategory(c, locale)}
                   </button>
                 ))}
               </div>
@@ -559,16 +563,16 @@ function FoodPicker({
                         className="flex w-full items-center justify-between rounded-lg border border-ink-100 p-3 text-left transition-colors hover:border-brand-300 hover:bg-brand-50/30"
                       >
                         <div className="min-w-0">
-                          <div className="font-semibold text-ink-900">{f.name}</div>
+                          <div className="font-semibold text-ink-900">{trFoodName(f.name, locale)}</div>
                           <div className="text-xs text-ink-500">
                             {Math.round(f.calories)} kcal · P {f.protein.toFixed(1)} · C{" "}
                             {f.carbs.toFixed(1)} · F {f.fat.toFixed(1)}{" "}
                             <span className="text-ink-400">
-                              · per {f.perAmount} {f.unit}
+                              · per {f.perAmount} {trUnit(f.unit, locale)}
                             </span>
                           </div>
                         </div>
-                        <span className="chip">{f.category}</span>
+                        <span className="chip">{trCategory(f.category, locale)}</span>
                       </button>
                     </li>
                   ))}

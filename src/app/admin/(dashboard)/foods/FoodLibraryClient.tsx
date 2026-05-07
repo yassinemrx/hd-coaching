@@ -10,6 +10,8 @@ import {
   SaladIcon,
   CloseIcon,
 } from "@/components/Icon";
+import { useLocale } from "@/components/I18nProvider";
+import { trFoodName, trCategory, trUnit } from "@/lib/i18n/dynamic";
 
 type Food = {
   id: string;
@@ -29,6 +31,7 @@ const UNITS = ["g", "ml", "piece", "cup", "scoop", "slice", "tbsp"];
 
 export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
   const router = useRouter();
+  const locale = useLocale();
   const [items, setItems] = useState(initial);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
@@ -94,7 +97,7 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
           <FilterChip active={filter === "All"} onClick={() => setFilter("All")}>All</FilterChip>
           {CATEGORIES.map((c) => (
             <FilterChip key={c} active={filter === c} onClick={() => setFilter(c)}>
-              {c}
+              {trCategory(c, locale)}
             </FilterChip>
           ))}
         </div>
@@ -111,7 +114,7 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
           Object.entries(grouped).map(([cat, list]) => (
             <section key={cat}>
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">{cat}</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">{trCategory(cat, locale)}</h2>
                 <span className="text-xs text-ink-400">({list.length})</span>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -122,9 +125,9 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-semibold text-ink-900">{f.name}</h3>
+                        <h3 className="truncate font-semibold text-ink-900">{trFoodName(f.name, locale)}</h3>
                         <p className="mt-0.5 text-xs text-ink-400">
-                          per {f.perAmount} {f.unit}
+                          per {f.perAmount} {trUnit(f.unit, locale)}
                         </p>
                         <div className="mt-2 grid grid-cols-4 gap-1 text-center">
                           <Macro label="kcal" value={Math.round(f.calories)} />
@@ -220,6 +223,7 @@ function FoodForm({
   onClose: () => void;
   onSaved: (f: Food) => void;
 }) {
+  const locale = useLocale();
   const [name, setName] = useState(initial?.name ?? "");
   const [category, setCategory] = useState(initial?.category ?? "Protein");
   const [unit, setUnit] = useState(initial?.unit ?? "g");
@@ -296,7 +300,7 @@ function FoodForm({
                 className="input mt-1"
               >
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{trCategory(c, locale)}</option>
                 ))}
               </select>
             </div>
@@ -304,7 +308,7 @@ function FoodForm({
               <label className="label">Unit</label>
               <select value={unit} onChange={(e) => setUnit(e.target.value)} className="input mt-1">
                 {UNITS.map((u) => (
-                  <option key={u} value={u}>{u}</option>
+                  <option key={u} value={u}>{trUnit(u, locale)}</option>
                 ))}
               </select>
             </div>

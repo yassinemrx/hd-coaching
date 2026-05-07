@@ -2,13 +2,14 @@ import { requireClient } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { DumbbellIcon, ChevronDownIcon } from "@/components/Icon";
-import { getDict } from "@/lib/i18n/server";
+import { getDict, getLocale } from "@/lib/i18n/server";
+import { trExerciseName, trMuscleGroup, trEquipment } from "@/lib/i18n/dynamic";
 
 export const metadata = { title: "Training — HD Coaching" };
 export const dynamic = "force-dynamic";
 
 export default async function TrainingPage() {
-  const [user, t] = await Promise.all([requireClient(), getDict()]);
+  const [user, t, locale] = await Promise.all([requireClient(), getDict(), getLocale()]);
   const program = await prisma.trainingProgram.findUnique({
     where: { userId: user.id },
     include: {
@@ -74,13 +75,13 @@ export default async function TrainingPage() {
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-ink-900">{ex.name}</h3>
+                      <h3 className="font-semibold text-ink-900">{trExerciseName(ex.name, locale)}</h3>
                       {ex.library && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {ex.library.muscleGroup && (
-                            <span className="chip chip-brand">{ex.library.muscleGroup}</span>
+                            <span className="chip chip-brand">{trMuscleGroup(ex.library.muscleGroup, locale)}</span>
                           )}
-                          {ex.library.equipment && <span className="chip">{ex.library.equipment}</span>}
+                          {ex.library.equipment && <span className="chip">{trEquipment(ex.library.equipment, locale)}</span>}
                         </div>
                       )}
                     </div>

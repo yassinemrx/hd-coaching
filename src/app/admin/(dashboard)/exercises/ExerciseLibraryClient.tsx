@@ -10,6 +10,8 @@ import {
   DumbbellIcon,
   CloseIcon,
 } from "@/components/Icon";
+import { useLocale } from "@/components/I18nProvider";
+import { trExerciseName, trCategory, trMuscleGroup, trEquipment } from "@/lib/i18n/dynamic";
 
 type Exercise = {
   id: string;
@@ -28,6 +30,7 @@ const EQUIPMENT = ["Barbell", "Dumbbell", "Machine", "Cable", "Bodyweight", "Ket
 
 export default function ExerciseLibraryClient({ initial }: { initial: Exercise[] }) {
   const router = useRouter();
+  const locale = useLocale();
   const [items, setItems] = useState(initial);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("All");
@@ -107,7 +110,7 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
               active={filterCategory === c}
               onClick={() => setFilterCategory(c)}
             >
-              {c}
+              {trCategory(c, locale)}
             </FilterChip>
           ))}
         </div>
@@ -124,7 +127,7 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
           Object.entries(grouped).map(([cat, list]) => (
             <section key={cat}>
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">{cat}</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">{trCategory(cat, locale)}</h2>
                 <span className="text-xs text-ink-400">({list.length})</span>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -135,10 +138,10 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h3 className="truncate font-semibold text-ink-900">{ex.name}</h3>
+                        <h3 className="truncate font-semibold text-ink-900">{trExerciseName(ex.name, locale)}</h3>
                         <div className="mt-2 flex flex-wrap gap-1.5">
-                          {ex.muscleGroup && <span className="chip chip-brand">{ex.muscleGroup}</span>}
-                          {ex.equipment && <span className="chip">{ex.equipment}</span>}
+                          {ex.muscleGroup && <span className="chip chip-brand">{trMuscleGroup(ex.muscleGroup, locale)}</span>}
+                          {ex.equipment && <span className="chip">{trEquipment(ex.equipment, locale)}</span>}
                         </div>
                         <p className="mt-2 text-xs text-ink-500">
                           {ex.defaultSets ?? "—"} × {ex.defaultReps || "—"} · rest{" "}
@@ -227,6 +230,7 @@ function ExerciseForm({
   onClose: () => void;
   onSaved: (e: Exercise) => void;
 }) {
+  const locale = useLocale();
   const [name, setName] = useState(initial?.name ?? "");
   const [category, setCategory] = useState(initial?.category ?? "Push");
   const [muscleGroup, setMuscleGroup] = useState(initial?.muscleGroup ?? "");
@@ -303,7 +307,7 @@ function ExerciseForm({
                 className="input mt-1"
               >
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{trCategory(c, locale)}</option>
                 ))}
               </select>
             </div>
@@ -316,7 +320,7 @@ function ExerciseForm({
               >
                 <option value="">—</option>
                 {EQUIPMENT.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{trEquipment(c, locale)}</option>
                 ))}
               </select>
             </div>
