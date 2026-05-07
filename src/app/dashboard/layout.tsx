@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChartIcon, SaladIcon, DumbbellIcon } from "@/components/Icon";
+import { ChartIcon, SaladIcon, DumbbellIcon, SettingsIcon } from "@/components/Icon";
 import SignOutButton from "@/components/SignOutButton";
 import NavLink from "@/components/NavLink";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -33,6 +33,9 @@ export default async function DashboardLayout({
             </NavLink>
             <NavLink href="/dashboard/training">
               <span className="flex items-center gap-2"><DumbbellIcon size={16} /> {t.nav.training}</span>
+            </NavLink>
+            <NavLink href="/dashboard/settings">
+              <span className="flex items-center gap-2"><SettingsIcon size={16} /> {t.nav.settings}</span>
             </NavLink>
           </nav>
           <div className="flex items-center gap-3">

@@ -57,6 +57,7 @@ const en = {
     coachPanel: "Coach panel",
     openDashboard: "Open dashboard",
     workspace: "Workspace",
+    settings: "Settings",
   },
   home: {
     badge: "Personal coaching, reimagined",
@@ -211,6 +212,25 @@ const en = {
     deleteClientConfirm: "Delete {name}? This removes all their data.",
     couldNotDeleteClient: "Could not delete client.",
   },
+  settings: {
+    title: "Settings",
+    blurb: "Manage your account and password.",
+    account: "Account",
+    changePassword: "Change password",
+    changePasswordBlurb: "Use a strong password you don't use anywhere else.",
+    currentPassword: "Current password",
+    newPassword: "New password",
+    confirmNewPassword: "Confirm new password",
+    changePasswordCta: "Change password",
+    changing: "Changing…",
+    passwordChanged: "Password changed.",
+    wrongPassword: "Current password is incorrect.",
+    samePassword: "New password must be different from the current one.",
+    passwordsDontMatch: "New passwords don't match.",
+    passwordTooShort: "Password must be at least 8 characters.",
+    passwordHint: "At least 8 characters.",
+    couldNotChange: "Could not change password.",
+  },
 };
 
 const ar: typeof en = {
@@ -252,6 +272,7 @@ const ar: typeof en = {
     coachPanel: "لوحة المدرب",
     openDashboard: "فتح اللوحة",
     workspace: "مساحة العمل",
+    settings: "الإعدادات",
   },
   home: {
     badge: "تدريب شخصي بحلّة جديدة",
@@ -406,6 +427,25 @@ const ar: typeof en = {
     deleteClientConfirm: "حذف {name}؟ سيؤدي ذلك إلى حذف جميع بياناته.",
     couldNotDeleteClient: "تعذّر حذف العميل.",
   },
+  settings: {
+    title: "الإعدادات",
+    blurb: "إدارة حسابك وكلمة المرور.",
+    account: "الحساب",
+    changePassword: "تغيير كلمة المرور",
+    changePasswordBlurb: "استخدم كلمة مرور قوية لا تستخدمها في مكان آخر.",
+    currentPassword: "كلمة المرور الحالية",
+    newPassword: "كلمة المرور الجديدة",
+    confirmNewPassword: "تأكيد كلمة المرور الجديدة",
+    changePasswordCta: "تغيير كلمة المرور",
+    changing: "جاري التغيير…",
+    passwordChanged: "تم تغيير كلمة المرور.",
+    wrongPassword: "كلمة المرور الحالية غير صحيحة.",
+    samePassword: "يجب أن تختلف كلمة المرور الجديدة عن الحالية.",
+    passwordsDontMatch: "كلمتا المرور الجديدتان غير متطابقتين.",
+    passwordTooShort: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+    passwordHint: "8 أحرف على الأقل.",
+    couldNotChange: "تعذّر تغيير كلمة المرور.",
+  },
 };
 
 const fr: typeof en = {
@@ -447,6 +487,7 @@ const fr: typeof en = {
     coachPanel: "Espace coach",
     openDashboard: "Ouvrir le tableau de bord",
     workspace: "Espace de travail",
+    settings: "Paramètres",
   },
   home: {
     badge: "Le coaching personnel, repensé",
@@ -601,6 +642,25 @@ const fr: typeof en = {
     openClientLabel: "Ouvrir",
     deleteClientConfirm: "Supprimer {name} ? Cela retire toutes ses données.",
     couldNotDeleteClient: "Impossible de supprimer le client.",
+  },
+  settings: {
+    title: "Paramètres",
+    blurb: "Gère ton compte et ton mot de passe.",
+    account: "Compte",
+    changePassword: "Changer le mot de passe",
+    changePasswordBlurb: "Utilise un mot de passe fort, unique à cette application.",
+    currentPassword: "Mot de passe actuel",
+    newPassword: "Nouveau mot de passe",
+    confirmNewPassword: "Confirmer le nouveau mot de passe",
+    changePasswordCta: "Changer le mot de passe",
+    changing: "Modification…",
+    passwordChanged: "Mot de passe modifié.",
+    wrongPassword: "Mot de passe actuel incorrect.",
+    samePassword: "Le nouveau mot de passe doit être différent de l'actuel.",
+    passwordsDontMatch: "Les nouveaux mots de passe ne correspondent pas.",
+    passwordTooShort: "Le mot de passe doit faire au moins 8 caractères.",
+    passwordHint: "Au moins 8 caractères.",
+    couldNotChange: "Impossible de modifier le mot de passe.",
   },
 };
 

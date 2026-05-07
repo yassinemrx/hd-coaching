@@ -12,6 +12,7 @@ import {
   LogoutIcon,
   MenuIcon,
   CloseIcon,
+  SettingsIcon,
 } from "./Icon";
 import LocaleSwitcher from "./LocaleSwitcher";
 import { useDict } from "./I18nProvider";
@@ -86,6 +87,7 @@ function SidebarContent({
     { href: "/admin/clients", label: t.nav.clients, icon: UsersIcon, exact: false },
     { href: "/admin/exercises", label: t.nav.exerciseLibrary, icon: DumbbellIcon, exact: false },
     { href: "/admin/foods", label: t.nav.foodLibrary, icon: SaladIcon, exact: false },
+    { href: "/admin/settings", label: t.nav.settings, icon: SettingsIcon, exact: false },
   ];
 
   return (
