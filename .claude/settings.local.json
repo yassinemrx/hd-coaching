@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm *)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsx *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"Login: %{http_code}\\\\n\" http://localhost:3000/login)",
+      "Bash(curl -s -o /dev/null -w \"AdminLogin: %{http_code}\\\\n\" http://localhost:3000/admin/login)",
+      "Bash(curl -s -o /dev/null -w \"Dashboard\\(unauth, expect 307\\): %{http_code}\\\\n\" http://localhost:3000/dashboard/progress)",
+      "Bash(curl -s -o /dev/null -w \"Admin\\(unauth, expect 307\\): %{http_code}\\\\n\" http://localhost:3000/admin)",
+      "Bash(curl -s -o /dev/null -w \"AdminLogin \\(expect 200\\): %{http_code}\\\\n\" http://localhost:3000/admin/login)",
+      "Bash(cat)",
+      "Bash(bash /tmp/auth_test.sh)",
+      "Bash(powershell -Command \"Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force\")"
+    ]
+  }
+}
