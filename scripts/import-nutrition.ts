@@ -164,26 +164,37 @@ function maybeAddFattyAcids(
 }
 
 async function searchFood(name: string) {
-  const params = new URLSearchParams({
-    api_key: API_KEY,
+  // POST with JSON body — USDA's recommended format. GET with `dataType` as a
+  // comma-joined query string returns intermittent 400s for plain queries.
+  const body = {
     query: name,
-    pageSize: "5",
-    dataType: "Foundation,SR Legacy,Survey (FNDDS)",
-  });
-  const url = `${SEARCH_URL}?${params.toString()}`;
-  const res = await fetch(url);
-  if (!res.ok) {
+    pageSize: 5,
+    dataType: ["Foundation", "SR Legacy", "Survey (FNDDS)"],
+  };
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const res = await fetch(`${SEARCH_URL}?api_key=${API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      const json = (await res.json()) as {
+        foods: Array<{
+          fdcId: number;
+          description: string;
+          dataType: string;
+          foodNutrients: Array<{ nutrientName: string; value: number; unitName: string }>;
+        }>;
+      };
+      return json.foods?.[0] ?? null;
+    }
+    if (res.status >= 500 || res.status === 429) {
+      await new Promise((r) => setTimeout(r, 800 * attempt));
+      continue;
+    }
     throw new Error(`USDA search failed for "${name}": ${res.status} ${res.statusText}`);
   }
-  const json = (await res.json()) as {
-    foods: Array<{
-      fdcId: number;
-      description: string;
-      dataType: string;
-      foodNutrients: Array<{ nutrientName: string; value: number; unitName: string }>;
-    }>;
-  };
-  return json.foods?.[0] ?? null;
+  throw new Error(`USDA search failed for "${name}": exhausted retries`);
 }
 
 function extractNutrition(
