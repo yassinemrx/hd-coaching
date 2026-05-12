@@ -206,8 +206,8 @@ function FilterChip({
       className={
         "rounded-full px-3 py-1.5 text-xs font-medium transition-colors " +
         (active
-          ? "bg-ink-900 text-white"
-          : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-50")
+          ? "bg-brand-500 text-ink-50 shadow-glow"
+          : "bg-white text-ink-600 ring-1 ring-ink-200 hover:bg-ink-100")
       }
     >
       {children}
@@ -270,7 +270,7 @@ function FoodForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/40 backdrop-blur-sm sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
         <div className="flex items-start justify-between">
           <div>

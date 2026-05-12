@@ -46,7 +46,7 @@ export default function AdminSidebar({ name }: { name: string }) {
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
           <div className="absolute inset-y-0 start-0 w-72 bg-ink-gradient text-white">
