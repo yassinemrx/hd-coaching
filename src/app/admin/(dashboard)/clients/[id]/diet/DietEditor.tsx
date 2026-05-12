@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   PlusIcon,
@@ -11,6 +11,7 @@ import {
   CloseIcon,
   SaladIcon,
   CheckIcon,
+  CameraIcon,
 } from "@/components/Icon";
 import { useDict, useLocale } from "@/components/I18nProvider";
 import { trFoodName, trCategory, trUnit } from "@/lib/i18n/dynamic";
@@ -21,6 +22,7 @@ type Food = {
   category: string;
   unit: string;
   perAmount: number;
+  imageUrl: string | null;
   calories: number;
   protein: number;
   carbs: number;
@@ -34,7 +36,7 @@ type Item = {
   unit: string;
 };
 
-type Meal = { name: string; time: string; notes: string; items: Item[] };
+type Meal = { name: string; time: string; notes: string; imageUrl: string | null; items: Item[] };
 type Macros = { calories: number; protein: number; carbs: number; fat: number };
 
 type Initial = {
@@ -48,7 +50,7 @@ const EMPTY: Initial = {
   title: "",
   notes: "",
   macros: { calories: 2000, protein: 150, carbs: 200, fat: 60 },
-  meals: [{ name: "Breakfast", time: "08:00", notes: "", items: [] }],
+  meals: [{ name: "Breakfast", time: "08:00", notes: "", imageUrl: null, items: [] }],
 };
 
 function macrosFor(item: Item, foodMap: Map<string, Food>): {
@@ -113,7 +115,7 @@ export default function DietEditor({
   function addMeal() {
     setState((s) => ({
       ...s,
-      meals: [...s.meals, { name: "", time: "", notes: "", items: [] }],
+      meals: [...s.meals, { name: "", time: "", notes: "", imageUrl: null, items: [] }],
     }));
   }
   function removeMeal(i: number) {
@@ -190,6 +192,7 @@ export default function DietEditor({
           name: m.name,
           time: m.time,
           notes: m.notes || null,
+          imageUrl: m.imageUrl || null,
           items: m.items,
         })),
       }),
@@ -293,6 +296,11 @@ export default function DietEditor({
                 </button>
               </div>
             </div>
+
+            <MealImageField
+              imageUrl={meal.imageUrl}
+              onChange={(url) => setMeal(mi, { imageUrl: url })}
+            />
 
             <div className="mt-4 space-y-2">
               {meal.items.length === 0 && (
@@ -586,6 +594,87 @@ function FoodPicker({
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function MealImageField({
+  imageUrl,
+  onChange,
+}: {
+  imageUrl: string | null;
+  onChange: (url: string | null) => void;
+}) {
+  const t = useDict();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function pick(file: File) {
+    setErr(null);
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/meals/upload-image", { method: "POST", body: form });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(typeof j.error === "string" ? j.error : "Upload failed");
+      }
+      const { url } = (await res.json()) as { url: string };
+      onChange(url);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 flex items-center gap-3">
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          className="h-16 w-24 rounded-lg object-cover ring-1 ring-ink-200"
+        />
+      ) : (
+        <div className="grid h-16 w-24 place-items-center rounded-lg bg-ink-100 text-ink-400 ring-1 ring-ink-200">
+          <CameraIcon size={20} />
+        </div>
+      )}
+      <div className="flex flex-col gap-1">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) pick(f);
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="btn btn-secondary text-xs"
+        >
+          {uploading ? t.admin.savingDots : t.diet.uploadMealImage}
+        </button>
+        {imageUrl && (
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="text-xs text-ink-500 hover:text-red-600"
+          >
+            {t.diet.removeImage}
+          </button>
+        )}
+        <p className="text-xs text-ink-400">{t.diet.autoFromIngredient}</p>
+      </div>
+      {err && <p className="text-xs text-red-600">{err}</p>}
     </div>
   );
 }

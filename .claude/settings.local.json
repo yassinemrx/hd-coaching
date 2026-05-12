@@ -18,7 +18,9 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(timeout 25 bash *)"
+      "Bash(timeout 25 bash *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT=$?\")"
     ]
   }
 }

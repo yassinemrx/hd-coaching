@@ -6,5 +6,5 @@ export async function GET(
   _req: Request,
   { params }: { params: { filename: string } }
 ) {
-  return serveUpload(params.filename);
+  return serveUpload(params.filename, "foods");
 }

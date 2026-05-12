@@ -15,6 +15,7 @@ const mealSchema = z.object({
   name: z.string().min(1).max(100),
   time: z.string().min(1).max(20),
   notes: z.string().max(500).optional().nullable(),
+  imageUrl: z.string().max(500).optional().nullable(),
   items: z.array(itemSchema).max(40),
 });
 
@@ -53,6 +54,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       name: m.name,
       time: m.time,
       notes: m.notes ?? null,
+      imageUrl: m.imageUrl ?? null,
       order: i,
       items: {
         create: m.items.map((it, j) => ({

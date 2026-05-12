@@ -90,12 +90,103 @@ model Food {
   category  String   @default("Other") // Protein, Carbs, Fats, Vegetables, Fruits, Dairy, Drinks, Other
   unit      String   @default("g")     // g, ml, piece, cup, scoop, slice, tbsp
   perAmount Float    @default(100)     // values below are per X units (e.g. per 100g)
+  imageUrl  String?                    // food photo — stored in public/uploads/foods/
+
+  // Core macros (always set)
   calories  Float    @default(0)
   protein   Float    @default(0)
   carbs     Float    @default(0)
   fat       Float    @default(0)
   notes     String?
   createdAt DateTime @default(now())
+
+  // ── Extended core (all optional) ──
+  netCarbs    Float?
+  fiber       Float?
+  sodium      Float? // mg
+  cholesterol Float? // mg
+
+  // ── Minerals ──
+  calcium    Float? // mg
+  iron       Float? // mg
+  potassium  Float? // mg
+  vitaminD   Float? // μg
+  magnesium  Float? // mg
+  phosphorus Float? // mg
+  zinc       Float? // mg
+  selenium   Float? // μg
+  copper     Float? // mg
+  manganese  Float? // mg
+
+  // ── Vitamins ──
+  vitaminA        Float? // μg RAE
+  vitaminAIU      Float? // IU
+  vitaminB6       Float? // mg
+  vitaminB12      Float? // μg
+  vitaminC        Float? // mg
+  vitaminE        Float? // mg
+  vitaminK        Float? // μg
+  thiamine        Float? // mg (B1)
+  riboflavin      Float? // mg (B2)
+  niacin          Float? // mg (B3)
+  pantothenicAcid Float? // mg (B5)
+  folate          Float? // μg (B9)
+  choline         Float? // mg
+  retinol         Float? // μg
+  alphaCarotene   Float? // μg
+  betaCarotene    Float? // μg
+  lycopene        Float? // μg
+  fluoride        Float? // μg
+  vitaminD2       Float? // μg
+  vitaminD3       Float? // μg
+  vitaminDIU      Float? // IU
+  caffeine        Float? // mg
+  theobromine     Float? // mg
+
+  // ── Sugars ──
+  sugar     Float? // g total
+  sucrose   Float?
+  glucose   Float?
+  fructose  Float?
+  lactose   Float?
+  maltose   Float?
+  galactose Float?
+  starch    Float?
+
+  // ── Fat breakdown ──
+  saturatedFat       Float?
+  monounsaturatedFat Float?
+  polyunsaturatedFat Float?
+  transFat           Float?
+
+  // ── Fatty acids ──
+  omega3 Float? // g total
+  omega6 Float? // g total
+  ala    Float? // Alpha Linolenic Acid
+  dha    Float? // Docosahexaenoic Acid
+  epa    Float? // Eicosapentaenoic Acid
+  dpa    Float? // Docosapentaenoic Acid
+
+  // ── Amino acids (all in g) ──
+  alanine        Float?
+  arginine       Float?
+  asparticAcid   Float?
+  cystine        Float?
+  glutamicAcid   Float?
+  glycine        Float?
+  histidine      Float?
+  hydroxyproline Float?
+  isoleucine     Float?
+  leucine        Float?
+  lysine         Float?
+  methionine     Float?
+  phenylalanine  Float?
+  proline        Float?
+  serine         Float?
+  threonine      Float?
+  tryptophan     Float?
+  tyrosine       Float?
+  valine         Float?
 
   mealItems MealItem[]
 
@@ -133,6 +224,7 @@ model Meal {
   name       String
   time       String
   notes      String?  @db.Text
+  imageUrl   String?  // meal photo — stored in public/uploads/meals/
   order      Int      @default(0)
 
   dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)

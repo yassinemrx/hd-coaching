@@ -47,6 +47,7 @@ export default async function DietEditorPage({ params }: { params: { id: string 
           name: m.name,
           time: m.time,
           notes: m.notes ?? "",
+          imageUrl: m.imageUrl ?? null,
           items: m.items.map((it) => ({
             foodId: it.foodId,
             customName: it.customName,
@@ -79,6 +80,7 @@ export default async function DietEditorPage({ params }: { params: { id: string 
           category: f.category,
           unit: f.unit,
           perAmount: f.perAmount,
+          imageUrl: f.imageUrl,
           calories: f.calories,
           protein: f.protein,
           carbs: f.carbs,

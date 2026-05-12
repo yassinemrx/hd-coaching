@@ -1,20 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const schema = z.object({
-  name: z.string().min(1).max(120).optional(),
-  category: z.string().min(1).max(50).optional(),
-  unit: z.string().min(1).max(20).optional(),
-  perAmount: z.coerce.number().positive().max(100000).optional(),
-  calories: z.coerce.number().min(0).max(100000).optional(),
-  protein: z.coerce.number().min(0).max(10000).optional(),
-  carbs: z.coerce.number().min(0).max(10000).optional(),
-  fat: z.coerce.number().min(0).max(10000).optional(),
-  notes: z.string().max(500).optional().nullable(),
-});
+import { foodUpdateSchema, EXTENDED_FIELDS } from "@/lib/foodSchema";
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -22,24 +10,33 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const json = await req.json().catch(() => null);
-  const parsed = schema.safeParse(json);
+  const parsed = foodUpdateSchema.safeParse(json);
   if (!parsed.success)
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const data = parsed.data;
+  const update: Record<string, unknown> = {};
+
+  if (data.name !== undefined) update.name = data.name.trim();
+  if (data.category !== undefined) update.category = data.category;
+  if (data.unit !== undefined) update.unit = data.unit;
+  if (data.perAmount !== undefined) update.perAmount = data.perAmount;
+  if (data.imageUrl !== undefined) update.imageUrl = data.imageUrl || null;
+  if (data.calories !== undefined) update.calories = data.calories;
+  if (data.protein !== undefined) update.protein = data.protein;
+  if (data.carbs !== undefined) update.carbs = data.carbs;
+  if (data.fat !== undefined) update.fat = data.fat;
+  if (data.notes !== undefined) update.notes = data.notes || null;
+
+  for (const field of EXTENDED_FIELDS) {
+    if ((data as Record<string, unknown>)[field] !== undefined) {
+      update[field] = (data as Record<string, unknown>)[field];
+    }
+  }
+
   const updated = await prisma.food.update({
     where: { id: params.id },
-    data: {
-      ...(data.name !== undefined && { name: data.name.trim() }),
-      ...(data.category !== undefined && { category: data.category }),
-      ...(data.unit !== undefined && { unit: data.unit }),
-      ...(data.perAmount !== undefined && { perAmount: data.perAmount }),
-      ...(data.calories !== undefined && { calories: data.calories }),
-      ...(data.protein !== undefined && { protein: data.protein }),
-      ...(data.carbs !== undefined && { carbs: data.carbs }),
-      ...(data.fat !== undefined && { fat: data.fat }),
-      ...(data.notes !== undefined && { notes: data.notes || null }),
-    },
+    data: update,
   });
   return NextResponse.json(updated);
 }

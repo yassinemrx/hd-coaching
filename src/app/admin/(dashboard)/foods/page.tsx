@@ -11,20 +11,7 @@ export default async function FoodLibraryPage() {
 
   return (
     <div className="animate-fade-in">
-      <FoodLibraryClient
-        initial={foods.map((f) => ({
-          id: f.id,
-          name: f.name,
-          category: f.category,
-          unit: f.unit,
-          perAmount: f.perAmount,
-          calories: f.calories,
-          protein: f.protein,
-          carbs: f.carbs,
-          fat: f.fat,
-          notes: f.notes,
-        }))}
-      />
+      <FoodLibraryClient initial={foods} />
     </div>
   );
 }
