@@ -66,13 +66,13 @@ export default async function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute -top-40 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-brand-200/40 blur-3xl" />
-          <div className="absolute -top-32 right-0 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
+          <div className="absolute -top-40 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-3xl" />
+          <div className="absolute -top-32 right-0 h-72 w-72 rounded-full bg-brand-400/15 blur-3xl" />
         </div>
         <div className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-20">
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <div className="animate-fade-in">
-              <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-200">
+              <div className="inline-flex items-center gap-2 rounded-full bg-brand-500/15 px-3 py-1 text-xs font-semibold text-brand-600 ring-1 ring-brand-500/40">
                 <SparkleIcon size={14} /> {t.home.badge}
               </div>
               <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl text-balance">
@@ -222,7 +222,7 @@ export default async function Home() {
       <section id="how" className="bg-ink-gradient py-16 text-white sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-300">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-500">
               {t.home.howKicker}
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl text-balance">
@@ -250,11 +250,11 @@ export default async function Home() {
             <p className="mt-3 max-w-xl text-white/90">{t.home.finalBlurb}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               {session ? (
-                <Link href={dashHref} className="btn bg-white text-brand-700 hover:bg-ink-50">
+                <Link href={dashHref} className="btn bg-ink-50 text-brand-500 hover:bg-ink-100">
                   {t.home.finalCtaIn} <ChevronRightIcon size={16} />
                 </Link>
               ) : (
-                <Link href="/login" className="btn bg-white text-brand-700 hover:bg-ink-50">
+                <Link href="/login" className="btn bg-ink-50 text-brand-500 hover:bg-ink-100">
                   {t.home.finalCta} <ChevronRightIcon size={16} />
                 </Link>
               )}
@@ -362,14 +362,14 @@ function FakeChart() {
       <svg viewBox="0 0 100 70" preserveAspectRatio="none" className="h-32 w-full">
         <defs>
           <linearGradient id="hero-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1ba973" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#1ba973" stopOpacity="0" />
+            <stop offset="0%" stopColor="#d4af37" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#d4af37" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={fill} fill="url(#hero-fill)" />
-        <path d={path} fill="none" stroke="#0e885c" strokeWidth="1.4" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="#d4af37" strokeWidth="1.4" strokeLinejoin="round" />
         {points.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="0.9" fill="#0e885c" />
+          <circle key={i} cx={x} cy={y} r="0.9" fill="#f0c649" />
         ))}
       </svg>
     </div>

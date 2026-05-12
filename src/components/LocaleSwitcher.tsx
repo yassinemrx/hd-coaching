@@ -38,7 +38,7 @@ export default function LocaleSwitcher({ tone = "light" }: { tone?: "light" | "d
 
   const menuClass =
     tone === "dark"
-      ? "absolute end-0 mt-1 min-w-[140px] overflow-hidden rounded-lg bg-ink-900 text-white shadow-lg ring-1 ring-white/10"
+      ? "absolute end-0 mt-1 min-w-[140px] overflow-hidden rounded-lg bg-ink-50 text-white shadow-lg ring-1 ring-white/10"
       : "absolute end-0 mt-1 min-w-[140px] overflow-hidden rounded-lg bg-white shadow-soft ring-1 ring-ink-200";
 
   return (

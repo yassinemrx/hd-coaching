@@ -12,8 +12,8 @@ export default async function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10 bg-ink-50">
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-brand-200/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl" />
+        <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-brand-500/15 blur-3xl" />
+        <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-brand-400/15 blur-3xl" />
       </div>
 
       <div className="absolute end-4 top-4">

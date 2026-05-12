@@ -13,7 +13,7 @@ export default async function AdminLoginPage() {
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10 bg-ink-gradient text-white">
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-brand-700/20 blur-3xl" />
+        <div className="absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-brand-400/15 blur-3xl" />
       </div>
 
       <div className="absolute end-4 top-4">
@@ -41,7 +41,7 @@ export default async function AdminLoginPage() {
         </div>
         <p className="mt-6 text-center text-xs text-white/50">
           {t.auth.askClient}{" "}
-          <a href="/login" className="font-medium text-brand-300 hover:text-brand-200">
+          <a href="/login" className="font-medium text-brand-500 hover:text-brand-600">
             {t.auth.clientSignIn}
           </a>
         </p>
