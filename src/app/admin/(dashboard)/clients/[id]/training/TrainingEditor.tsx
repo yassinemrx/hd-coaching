@@ -240,14 +240,14 @@ export default function TrainingEditor({
                 onChange={(e) => setDay(di, { dayLabel: e.target.value })}
                 placeholder={t.admin.dayLabelPh}
               />
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => moveDay(di, -1)} className="btn btn-secondary px-3" aria-label={t.admin.moveUp}>
                   <ArrowUpIcon size={16} />
                 </button>
                 <button type="button" onClick={() => moveDay(di, 1)} className="btn btn-secondary px-3" aria-label={t.admin.moveDown}>
                   <ArrowDownIcon size={16} />
                 </button>
-                <button type="button" onClick={() => removeDay(di)} className="btn btn-danger">
+                <button type="button" onClick={() => removeDay(di)} className="btn btn-danger flex-1 sm:flex-none">
                   {t.admin.removeDay}
                 </button>
               </div>

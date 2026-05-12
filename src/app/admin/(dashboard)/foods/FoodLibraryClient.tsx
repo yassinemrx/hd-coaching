@@ -137,7 +137,7 @@ export default function FoodLibraryClient({ initial }: { initial: Food[] }) {
                           <Macro label="F" value={f.fat.toFixed(1)} />
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex shrink-0 flex-col gap-1">
                         <button onClick={() => openEdit(f)} className="btn-icon" aria-label={t.common.edit}>
                           <PencilIcon size={16} />
                         </button>
@@ -271,7 +271,7 @@ function FoodForm({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/40 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-lg animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="h-section">{initial ? t.admin.editFoodTitle : t.admin.addFoodTitle}</h2>
@@ -330,7 +330,7 @@ function FoodForm({
               {t.admin.perAmountHint}
             </p>
           </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div>
               <label className="label">{t.admin.caloriesLabel}</label>
               <input

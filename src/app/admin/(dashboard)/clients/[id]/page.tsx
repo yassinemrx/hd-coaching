@@ -42,10 +42,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <Link href="/admin/clients" className="text-sm text-brand-700 hover:underline">
           {t.admin.backToClients}
         </Link>
-        <div className="mt-2 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">{client.name}</h1>
-            <p className="text-sm text-slate-500">{client.email}</p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="break-words text-2xl font-bold text-slate-900">{client.name}</h1>
+            <p className="break-all text-sm text-slate-500">{client.email}</p>
             <p className="mt-1 text-xs text-slate-400">
               {t.admin.joined} {formatDate(client.createdAt)}
               {client.lastLoginAt
@@ -53,22 +53,22 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                 : ""}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={`/admin/clients/${client.id}/edit`}
-              className="btn btn-secondary"
+              className="btn btn-secondary flex-1 sm:flex-none"
             >
               {t.admin.editAccount}
             </Link>
             <Link
               href={`/admin/clients/${client.id}/diet`}
-              className="btn btn-secondary"
+              className="btn btn-secondary flex-1 sm:flex-none"
             >
               {dietPlan ? t.admin.editDietPlan : t.admin.addDietPlan}
             </Link>
             <Link
               href={`/admin/clients/${client.id}/training`}
-              className="btn btn-primary"
+              className="btn btn-primary flex-1 sm:flex-none"
             >
               {program ? t.admin.editTrainingProgram : t.admin.addTrainingProgram}
             </Link>

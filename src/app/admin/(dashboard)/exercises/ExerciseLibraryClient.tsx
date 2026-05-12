@@ -149,7 +149,7 @@ export default function ExerciseLibraryClient({ initial }: { initial: Exercise[]
                           {ex.defaultRest || "—"}
                         </p>
                       </div>
-                      <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex shrink-0 gap-1">
                         <button
                           onClick={() => openEdit(ex)}
                           className="btn-icon"
@@ -278,7 +278,7 @@ function ExerciseForm({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink-900/40 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-lg animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto animate-slide-in rounded-t-2xl bg-white p-6 shadow-soft sm:rounded-2xl">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="h-section">{initial ? t.admin.editExerciseTitle : t.admin.addExerciseTitle}</h2>
@@ -336,7 +336,7 @@ function ExerciseForm({
               placeholder={t.admin.musclePlaceholder}
             />
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div>
               <label className="label">{t.admin.setsLabel}</label>
               <input
@@ -356,7 +356,7 @@ function ExerciseForm({
                 placeholder="8-10"
               />
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <label className="label">{t.admin.restLabel}</label>
               <input
                 value={defaultRest}
