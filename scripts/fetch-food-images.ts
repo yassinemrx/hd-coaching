@@ -9,7 +9,17 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { readFileSync } from "fs";
 import { saveRemoteImage } from "../src/lib/upload";
+
+// Minimal .env loader (tsx doesn't auto-load .env like Next.js does).
+try {
+  const raw = readFileSync(".env", "utf8");
+  for (const line of raw.split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*"?([^"\n#]*)"?\s*$/i);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+} catch {}
 
 const prisma = new PrismaClient();
 
