@@ -14,7 +14,7 @@ export default async function DashboardLayout({
   const [user, t] = await Promise.all([requireClient(), getDict()]);
   return (
     <div className="min-h-screen bg-ink-50">
-      <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-ink-200 bg-ink-50/85 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/dashboard/progress" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-gradient text-white shadow-soft">

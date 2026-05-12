@@ -116,7 +116,7 @@
 
   /* Empty state */
   .empty-state {
-    @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-200 bg-white/40 p-10 text-center;
+    @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-200 bg-white/[0.03] p-10 text-center;
   }
 }
 

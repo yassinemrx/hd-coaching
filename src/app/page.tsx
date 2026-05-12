@@ -26,7 +26,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-ink-50">
       {/* Top nav */}
-      <header className="sticky top-0 z-40 border-b border-ink-200/60 bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-ink-200/60 bg-ink-50/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-gradient text-white shadow-soft">
