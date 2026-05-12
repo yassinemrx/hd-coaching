@@ -104,7 +104,7 @@ function SidebarContent({
         </Link>
       </div>
 
-      <div className="px-5 pb-3 hidden lg:block">
+      <div className="px-5 pb-3">
         <LocaleSwitcher tone="dark" />
       </div>
 
